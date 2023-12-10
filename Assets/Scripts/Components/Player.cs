@@ -25,7 +25,7 @@ public class PlayerBaker : Baker<Player>
 
         AddComponent(entity, new InputsData
         {
-
+            
         });
     }
 }

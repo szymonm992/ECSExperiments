@@ -1,18 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Burst;
+using Unity.Entities;
+using Unity.Physics;
 using UnityEngine;
 
-public class PlayerMovementSystem : MonoBehaviour
+public partial struct PlayerMovementSystem : ISystem
 {
-    // Start is called before the first frame update
-    void Start()
+    [BurstCompile]
+    public void OnCreate(ref SystemState state)
     {
-        
+
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    [BurstCompile]
+    public void OnUpdate(ref SystemState state)
+    { 
+        PhysicsWorld physicsWorld = SystemAPI.GetSingletonRW<PhysicsWorldSingleton>().ValueRW.PhysicsWorld;
+        state.EntityManager.CompleteDependencyBeforeRW<PhysicsWorldSingleton>();
     }
 }

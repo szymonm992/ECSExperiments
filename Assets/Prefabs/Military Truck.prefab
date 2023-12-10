@@ -268,6 +268,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9040147886836633141}
   - component: {fileID: 9138841267399301246}
+  - component: {fileID: 8371148861623270854}
   m_Layer: 0
   m_Name: Wheel BL
   m_TagString: Untagged
@@ -309,8 +310,8 @@ MonoBehaviour:
     y: 0
     z: 0.00010022521
   m_PrimitiveSize:
-    x: 0.9388003
-    y: 0.9388003
+    x: 1
+    y: 1
     z: 0.34019276
   m_PrimitiveOrientation:
     Value:
@@ -320,14 +321,14 @@ MonoBehaviour:
     RotationOrder: 4
   m_Capsule:
     Height: 0.34019276
-    Radius: 0.46940014
+    Radius: 0.5
     Axis: 2
   m_Cylinder:
     Height: 0.34019276
-    Radius: 0.46940014
+    Radius: 0.5
     Axis: 2
   m_CylinderSideCount: 20
-  m_SphereRadius: 0.46940014
+  m_SphereRadius: 0.5
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.014082003
@@ -434,6 +435,25 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
+--- !u!114 &8371148861623270854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197999830677032016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 731316719a157d24bbb1fe40af658cf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tireRadius: 0.5
+  spring: 30000
+  damper: 2000
+  tireMass: 20
+  canDrive: 1
+  canSteer: 0
+  graphicsRepresentation: {fileID: 7694349899470308557}
 --- !u!1 &1480961462974377203
 GameObject:
   m_ObjectHideFlags: 0
@@ -1257,6 +1277,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2166376334940489209}
   - component: {fileID: 9130486057972435423}
+  - component: {fileID: 4628628546752088768}
   m_Layer: 0
   m_Name: Wheel FL
   m_TagString: Untagged
@@ -1298,8 +1319,8 @@ MonoBehaviour:
     y: 0
     z: 0.00010022521
   m_PrimitiveSize:
-    x: 0.9388003
-    y: 0.9388003
+    x: 1
+    y: 1
     z: 0.34019282
   m_PrimitiveOrientation:
     Value:
@@ -1309,14 +1330,14 @@ MonoBehaviour:
     RotationOrder: 4
   m_Capsule:
     Height: 0.34019282
-    Radius: 0.46940014
+    Radius: 0.5
     Axis: 2
   m_Cylinder:
     Height: 0.34019282
-    Radius: 0.46940014
+    Radius: 0.5
     Axis: 2
   m_CylinderSideCount: 20
-  m_SphereRadius: 0.46940014
+  m_SphereRadius: 0.5
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.014082003
@@ -1423,6 +1444,25 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
+--- !u!114 &4628628546752088768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4605947691085485876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 731316719a157d24bbb1fe40af658cf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tireRadius: 0.5
+  spring: 30000
+  damper: 2000
+  tireMass: 20
+  canDrive: 1
+  canSteer: 1
+  graphicsRepresentation: {fileID: 8300881418594400846}
 --- !u!1 &4893388386180736006
 GameObject:
   m_ObjectHideFlags: 0
@@ -1782,6 +1822,7 @@ GameObject:
   - component: {fileID: 8772091258176817935}
   - component: {fileID: 38656809281161920}
   - component: {fileID: 5650999613043658429}
+  - component: {fileID: 7200656644915249480}
   m_Layer: 0
   m_Name: Military Truck
   m_TagString: Untagged
@@ -1877,6 +1918,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 5
+--- !u!114 &7200656644915249480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5978680110334807242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7a7b622fdc93964e96f536d235d1fcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Wheels:
+  - {fileID: 4628628546752088768}
+  - {fileID: 9182920060614270260}
+  - {fileID: 8371148861623270854}
+  - {fileID: 8051380415685856874}
 --- !u!1 &6072360304708816657
 GameObject:
   m_ObjectHideFlags: 0
@@ -2245,6 +2303,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5380348258938566555}
   - component: {fileID: 4205506780636769201}
+  - component: {fileID: 9182920060614270260}
   m_Layer: 0
   m_Name: Wheel FR
   m_TagString: Untagged
@@ -2286,8 +2345,8 @@ MonoBehaviour:
     y: 0
     z: -0.00010019541
   m_PrimitiveSize:
-    x: 0.93880033
-    y: 0.93880033
+    x: 1
+    y: 1
     z: 0.34019274
   m_PrimitiveOrientation:
     Value:
@@ -2297,14 +2356,14 @@ MonoBehaviour:
     RotationOrder: 4
   m_Capsule:
     Height: 0.34019274
-    Radius: 0.46940017
+    Radius: 0.5
     Axis: 2
   m_Cylinder:
     Height: 0.34019274
-    Radius: 0.46940017
+    Radius: 0.5
     Axis: 2
   m_CylinderSideCount: 20
-  m_SphereRadius: 0.46940017
+  m_SphereRadius: 0.5
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.014082003
@@ -2411,6 +2470,25 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
+--- !u!114 &9182920060614270260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6374471030619526714}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 731316719a157d24bbb1fe40af658cf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tireRadius: 0.5
+  spring: 30000
+  damper: 2000
+  tireMass: 20
+  canDrive: 1
+  canSteer: 1
+  graphicsRepresentation: {fileID: 3979989736086154389}
 --- !u!1 &6412366458677151571
 GameObject:
   m_ObjectHideFlags: 0
@@ -2670,6 +2748,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7813759012752765338}
   - component: {fileID: 4435481372840998808}
+  - component: {fileID: 8051380415685856874}
   m_Layer: 0
   m_Name: Wheel BR
   m_TagString: Untagged
@@ -2711,8 +2790,8 @@ MonoBehaviour:
     y: 0
     z: -0.00010019541
   m_PrimitiveSize:
-    x: 0.93880033
-    y: 0.93880033
+    x: 1
+    y: 1
     z: 0.34019274
   m_PrimitiveOrientation:
     Value:
@@ -2722,14 +2801,14 @@ MonoBehaviour:
     RotationOrder: 4
   m_Capsule:
     Height: 0.34019274
-    Radius: 0.46940017
+    Radius: 0.5
     Axis: 2
   m_Cylinder:
     Height: 0.34019274
-    Radius: 0.46940017
+    Radius: 0.5
     Axis: 2
   m_CylinderSideCount: 20
-  m_SphereRadius: 0.46940017
+  m_SphereRadius: 0.5
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.014082004
@@ -2836,6 +2915,25 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
+--- !u!114 &8051380415685856874
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7132113132683114237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 731316719a157d24bbb1fe40af658cf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tireRadius: 0.5
+  spring: 30000
+  damper: 2000
+  tireMass: 20
+  canDrive: 1
+  canSteer: 0
+  graphicsRepresentation: {fileID: 1773795762333861740}
 --- !u!1 &7143735152827877373
 GameObject:
   m_ObjectHideFlags: 0
