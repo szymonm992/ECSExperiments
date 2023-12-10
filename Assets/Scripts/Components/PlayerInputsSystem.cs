@@ -1,6 +1,4 @@
 using Unity.Entities;
-using Unity.Physics;
-using UnityEditor.Search;
 using UnityEngine;
 
 public partial class PlayerInputsSystem : SystemBase
@@ -11,7 +9,6 @@ public partial class PlayerInputsSystem : SystemBase
     {
         controls = new Controls();
         controls.Enable();
-       
     }
 
     protected override void OnUpdate()
