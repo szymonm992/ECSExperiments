@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Physics.Authoring;
 using UnityEngine;
 
@@ -17,6 +16,7 @@ public class VehicleMechanicsAuthoring : MonoBehaviour
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic);
 
+            AddComponent<VehicleBody>(entity);
             AddComponent(entity, new VehicleMechanicsForBaking
             {
                 Wheels = GetWheelInfo(authoring.Wheels, Allocator.Temp),
@@ -64,9 +64,8 @@ public class VehicleMechanicsAuthoring : MonoBehaviour
                     Radius = wheel.TireRadius,
                     Spring = wheel.Spring,
                     Damper = wheel.Damper,
+                    SuspensionTravel = wheel.SuspensionTravel,
 
-                    CanDrive = wheel.CanDrive,
-                    CanSteer = wheel.CanSteer,
                     IsGrounded = wheel.IsGrounded,
                 };
             }
@@ -89,12 +88,14 @@ public struct WheelBakingInfo
     public Entity Wheel;
     public Entity WheelGraphicalRepresentation;
 
+    public RigidTransform WorldFromSuspension;
+    public RigidTransform WorldFromChassis;
+
     public float Radius;
     public float Spring;
     public float Damper;
+    public float SuspensionTravel;
 
-    public bool CanDrive;
-    public bool CanSteer;
     public bool IsGrounded;
 }
 
@@ -104,4 +105,13 @@ public struct WheelData : IComponentData
     public Entity WheelGraphicalRepresentation;
     public bool CanDrive;
     public bool CanSteer;
+    public byte UsedForSteering;
+    public byte UsedForDriving;
+    public RigidTransform ChassisFromSuspension;
+}
+
+struct VehicleBody : IComponentData
+{
+    public float3 WorldCenterOfMass;
+    public float SlopeSlipFactor;
 }

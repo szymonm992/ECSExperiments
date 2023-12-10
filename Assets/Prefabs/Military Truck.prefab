@@ -312,7 +312,7 @@ MonoBehaviour:
   m_PrimitiveSize:
     x: 1
     y: 1
-    z: 0.34019276
+    z: 0.35
   m_PrimitiveOrientation:
     Value:
       x: -0
@@ -320,11 +320,11 @@ MonoBehaviour:
       z: 90
     RotationOrder: 4
   m_Capsule:
-    Height: 0.34019276
+    Height: 0.35
     Radius: 0.5
     Axis: 2
   m_Cylinder:
-    Height: 0.34019276
+    Height: 0.35
     Radius: 0.5
     Axis: 2
   m_CylinderSideCount: 20
@@ -448,12 +448,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tireRadius: 0.5
+  tireThickness: 0.35
   spring: 30000
   damper: 2000
   tireMass: 20
+  suspensionTravel: 0.5
   canDrive: 1
   canSteer: 0
   graphicsRepresentation: {fileID: 7694349899470308557}
+  debugSettings:
+    drawGizmos: 1
+    drawOnDisable: 0
+    drawWheelDirection: 0
+    drawShapeGizmo: 0
+    drawSprings: 0
+    drawMode: 0
 --- !u!1 &1480961462974377203
 GameObject:
   m_ObjectHideFlags: 0
@@ -1321,7 +1330,7 @@ MonoBehaviour:
   m_PrimitiveSize:
     x: 1
     y: 1
-    z: 0.34019282
+    z: 0.35
   m_PrimitiveOrientation:
     Value:
       x: -0
@@ -1329,11 +1338,11 @@ MonoBehaviour:
       z: 90
     RotationOrder: 4
   m_Capsule:
-    Height: 0.34019282
+    Height: 0.35
     Radius: 0.5
     Axis: 2
   m_Cylinder:
-    Height: 0.34019282
+    Height: 0.35
     Radius: 0.5
     Axis: 2
   m_CylinderSideCount: 20
@@ -1457,12 +1466,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tireRadius: 0.5
+  tireThickness: 0.35
   spring: 30000
   damper: 2000
   tireMass: 20
+  suspensionTravel: 0.5
   canDrive: 1
   canSteer: 1
   graphicsRepresentation: {fileID: 8300881418594400846}
+  debugSettings:
+    drawGizmos: 1
+    drawOnDisable: 0
+    drawWheelDirection: 0
+    drawShapeGizmo: 0
+    drawSprings: 0
+    drawMode: 0
 --- !u!1 &4893388386180736006
 GameObject:
   m_ObjectHideFlags: 0
@@ -1823,6 +1841,7 @@ GameObject:
   - component: {fileID: 38656809281161920}
   - component: {fileID: 5650999613043658429}
   - component: {fileID: 7200656644915249480}
+  - component: {fileID: 8414767145342987879}
   m_Layer: 0
   m_Name: Military Truck
   m_TagString: Untagged
@@ -1935,6 +1954,20 @@ MonoBehaviour:
   - {fileID: 9182920060614270260}
   - {fileID: 8371148861623270854}
   - {fileID: 8051380415685856874}
+--- !u!114 &8414767145342987879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5978680110334807242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d82118cd88312e3429f3075ee1f754bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxForwardSpeed: 70
+  maxBackwardSpeed: 48
 --- !u!1 &6072360304708816657
 GameObject:
   m_ObjectHideFlags: 0
@@ -2347,7 +2380,7 @@ MonoBehaviour:
   m_PrimitiveSize:
     x: 1
     y: 1
-    z: 0.34019274
+    z: 0.35
   m_PrimitiveOrientation:
     Value:
       x: -0
@@ -2355,11 +2388,11 @@ MonoBehaviour:
       z: 90
     RotationOrder: 4
   m_Capsule:
-    Height: 0.34019274
+    Height: 0.35
     Radius: 0.5
     Axis: 2
   m_Cylinder:
-    Height: 0.34019274
+    Height: 0.35
     Radius: 0.5
     Axis: 2
   m_CylinderSideCount: 20
@@ -2483,12 +2516,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tireRadius: 0.5
+  tireThickness: 0.35
   spring: 30000
   damper: 2000
   tireMass: 20
+  suspensionTravel: 0.5
   canDrive: 1
   canSteer: 1
   graphicsRepresentation: {fileID: 3979989736086154389}
+  debugSettings:
+    drawGizmos: 1
+    drawOnDisable: 0
+    drawWheelDirection: 0
+    drawShapeGizmo: 0
+    drawSprings: 0
+    drawMode: 0
 --- !u!1 &6412366458677151571
 GameObject:
   m_ObjectHideFlags: 0
@@ -2792,7 +2834,7 @@ MonoBehaviour:
   m_PrimitiveSize:
     x: 1
     y: 1
-    z: 0.34019274
+    z: 0.35
   m_PrimitiveOrientation:
     Value:
       x: -0
@@ -2800,11 +2842,11 @@ MonoBehaviour:
       z: 90
     RotationOrder: 4
   m_Capsule:
-    Height: 0.34019274
+    Height: 0.35
     Radius: 0.5
     Axis: 2
   m_Cylinder:
-    Height: 0.34019274
+    Height: 0.35
     Radius: 0.5
     Axis: 2
   m_CylinderSideCount: 20
@@ -2928,12 +2970,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tireRadius: 0.5
+  tireThickness: 0.35
   spring: 30000
   damper: 2000
   tireMass: 20
+  suspensionTravel: 0.5
   canDrive: 1
   canSteer: 0
   graphicsRepresentation: {fileID: 1773795762333861740}
+  debugSettings:
+    drawGizmos: 1
+    drawOnDisable: 0
+    drawWheelDirection: 0
+    drawShapeGizmo: 0
+    drawSprings: 0
+    drawMode: 0
 --- !u!1 &7143735152827877373
 GameObject:
   m_ObjectHideFlags: 0
