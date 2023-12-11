@@ -47,7 +47,7 @@ public partial struct PlayerMovementSystem : ISystem
 
             // Convert impulse power to a direction and magnitude (e.g., forward direction)
             float3 impulseDirection = new float3(0, 0, 1);
-            float3 impulse = impulsePower * impulseDirection * 3f;
+            float3 impulse = impulsePower * impulseDirection;
 
             PhysicsWorld.ApplyImpulse(rigidbodyIndex, impulse, impulsePoint);
         }
