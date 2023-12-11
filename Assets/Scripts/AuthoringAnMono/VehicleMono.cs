@@ -16,6 +16,7 @@ public class VehicleMono : MonoBehaviour
             var entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new VehicleEntityProperties
             {
+                VehicleEntity = entity,
                 VehicleMaximumForwardSpeed = authoring.VehicleMaximumForwardSpeed,
                 VehicleMaximumBackwardSpeed = authoring.VehicleMaximumBackwardSpeed,
             });

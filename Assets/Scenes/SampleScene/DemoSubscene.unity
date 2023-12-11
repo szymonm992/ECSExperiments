@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DrawColliders: 0
-  DrawColliderEdges: 0
+  DrawColliderEdges: 1
   DrawColliderAabbs: 0
   DrawBroadphase: 0
   DrawMassProperties: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
   m_SolverIterationCount: 4
   m_EnableSolverStabilizationHeuristic: 0
   m_MultiThreaded: 1
-  m_SynchronizeCollisionWorld: 1
+  m_SynchronizeCollisionWorld: 0
 --- !u!4 &116876912
 Transform:
   m_ObjectHideFlags: 0
@@ -477,7 +477,7 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
---- !u!1001 &1809658804
+--- !u!1001 &2088939375
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -551,4 +551,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 508733530}
   - {fileID: 116876912}
-  - {fileID: 1809658804}
+  - {fileID: 2088939375}
