@@ -7,7 +7,6 @@ using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 
-
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
 public partial struct PlayerMovementSystem : ISystem
 {
@@ -29,6 +28,7 @@ public partial struct PlayerMovementSystem : ISystem
     }
 
     [BurstCompile]
+    [WithAll(typeof(Simulate))]
     public partial struct DriveJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
@@ -46,15 +46,11 @@ public partial struct PlayerMovementSystem : ISystem
             {
                 LocalTransform vehicleTransform = LocalTransformLookup[Properties.VehicleEntity];
 
-                // Calculate the impulse power based on input
-                float impulsePower = Inputs.Vertical * currentMaxSpeed;
-
-                // Define the point where the impulse is applied (e.g., center of mass)
                 float3 worldForwardDirection = new float3(0, 0, 1);
                 float3 impulsePoint = PhysicsWorld.Bodies[rigidbodyIndex].WorldFromBody.pos;
                 float3 localForwardDirection = math.mul(vehicleTransform.Rotation, worldForwardDirection);
 
-                // Convert impulse power to a direction and magnitude (e.g., forward direction)
+                float impulsePower = Inputs.Vertical * currentMaxSpeed;
                 float3 impulse = impulsePower * localForwardDirection;
 
                 PhysicsWorld.ApplyImpulse(rigidbodyIndex, impulse, impulsePoint);
