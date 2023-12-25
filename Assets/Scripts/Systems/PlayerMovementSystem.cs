@@ -15,7 +15,7 @@ public partial struct PlayerMovementSystem : ISystem
     {
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
         
-        foreach (var (inputs, properties) in SystemAPI.Query<RefRO<EntityInputsData>, RefRO<VehicleEntityProperties>>())
+        foreach (var (inputs, properties) in SystemAPI.Query<RefRO<EntityInputsData>, RefRW<VehicleEntityProperties>>())
         {
             var vehicleDriveJob = new DriveJob
             {
@@ -34,15 +34,16 @@ public partial struct PlayerMovementSystem : ISystem
         [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
         public PhysicsWorld PhysicsWorld;
 
-        private void Execute(in VehicleEntityProperties Properties, in EntityInputsData Inputs)
+        private void Execute(ref VehicleEntityProperties Properties, in EntityInputsData Inputs)
         {
             bool isInputPositive = Inputs.Vertical.IsNumberPositive();
             var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(Properties.VehicleEntity);
 
             var currentVelocity = PhysicsWorld.GetLinearVelocity(rigidbodyIndex);
             var currentMaxSpeed = isInputPositive ? Properties.VehicleMaximumForwardSpeed : Properties.VehicleMaximumBackwardSpeed;
+            var currentSpeed = math.length(currentVelocity);
 
-            if (math.length(currentVelocity) <= currentMaxSpeed)
+            if (currentSpeed <= currentMaxSpeed)
             {
                 LocalTransform vehicleTransform = LocalTransformLookup[Properties.VehicleEntity];
 
@@ -54,7 +55,10 @@ public partial struct PlayerMovementSystem : ISystem
                 float3 impulse = impulsePower * localForwardDirection;
 
                 PhysicsWorld.ApplyImpulse(rigidbodyIndex, impulse, impulsePoint);
+
             }
+
+            Properties.CurrentSpeed = currentSpeed;
         }
     }
 }
