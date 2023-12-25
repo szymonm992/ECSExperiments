@@ -14,6 +14,7 @@ public class VehicleMono : MonoBehaviour
         public override void Bake(VehicleMono authoring)
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic);
+
             AddComponent(entity, new VehicleEntityProperties
             {
                 VehicleEntity = entity,
