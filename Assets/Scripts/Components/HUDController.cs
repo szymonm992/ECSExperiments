@@ -1,11 +1,10 @@
 using UnityEngine;
 using TMPro;
 using Unity.Entities;
-using System.Collections;
 
 public class HUDController : MonoBehaviour
 {
-    private const float EXECUTION_DELAY = 0.3f;
+    public static HUDController Instance;
 
     [SerializeField] private TextMeshProUGUI speedometer;
 
@@ -13,16 +12,24 @@ public class HUDController : MonoBehaviour
     private Entity playerEntity;
     private bool initialized = false;
 
-    private IEnumerator Start()
+    public void InitializeHUD()
     {
         initialized = false;
         entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-
-        yield return new WaitForSeconds(EXECUTION_DELAY);
-
+       
         //We can replace it with PlayerTag or another marker
         playerEntity = entityManager.CreateEntityQuery(typeof(EntityInputsData)).GetSingletonEntity();
         initialized = true;
+
+        Debug.Log("Initialized HUD Controller");
+    }
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
     }
 
     private void Update()
