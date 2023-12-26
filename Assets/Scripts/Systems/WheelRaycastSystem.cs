@@ -1,7 +1,6 @@
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Entities.UniversalDelegates;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Extensions;
@@ -9,20 +8,26 @@ using Unity.Physics.Systems;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
-[UpdateBefore(typeof(PlayerMovementSystem))]
 public partial struct WheelRaycastSystem : ISystem
 {
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-        var wheelRaycastJob = new WheelRaycastJob()
-        {
-            PhysicsWorld = physicsWorld,
-            LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true)
-        };
 
-        state.Dependency = wheelRaycastJob.Schedule(state.Dependency);  
+        foreach (var properties in SystemAPI.Query<RefRW<VehicleEntityProperties>>())
+        {
+            foreach (var (wheel, hitData) in SystemAPI.Query<RefRO<WheelProperties>, RefRW<WheelHitData>>())
+            {
+                var wheelRaycastJob = new WheelRaycastJob()
+                {
+                    PhysicsWorld = physicsWorld,
+                    LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true)
+                };
+
+                state.Dependency = wheelRaycastJob.Schedule(state.Dependency);
+            }
+        }
     }
 }
 
@@ -33,20 +38,28 @@ public partial struct WheelRaycastJob : IJobEntity
     public PhysicsWorld PhysicsWorld;
     [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
 
-    private void Execute(Entity entity, in VehicleEntityProperties vehicleEntityProperties,
-        in WheelProperties wheelProperties, ref WheelHitData wheelHitData)
+    private void Execute(in VehicleEntityProperties vehicleEntityProperties,
+        in WheelProperties wheelProperties,  ref WheelHitData wheelHitData)
     {
-        var wheelTransform = LocalTransformLookup[entity];
         var vehicleTransform = LocalTransformLookup[vehicleEntityProperties.VehicleEntity];
+        var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(vehicleEntityProperties.VehicleEntity);
+        var localUpDirection = math.mul(vehicleTransform.Rotation, new float3(0, 1, 0));
+
+        float3 impulsePoint = PhysicsWorld.Bodies[rigidbodyIndex].WorldFromBody.pos;
+        PhysicsWorld.ApplyImpulse(rigidbodyIndex, 10000 * localUpDirection, impulsePoint);
+
+        /*
+        var wheelTransform = LocalTransformLookup[entity];
+       
 
         var localPosition = math.mul(vehicleTransform.Rotation, wheelTransform.Position) + vehicleTransform.Position;
-        var localUp = math.mul(vehicleTransform.Rotation, new float3(0, 1, 0));
-
-        var rigIndex = PhysicsWorld.GetRigidBodyIndex(vehicleEntityProperties.VehicleEntity);
-        var collisionFilter = PhysicsWorld.GetCollisionFilter(rigIndex);
+       
+        
+        var collisionFilter = PhysicsWorld.GetCollisionFilter(rigidbodyIndex);
 
         var rayStart = localPosition;
-        var rayEnd = rayStart - localUp * (wheelProperties.Radius * wheelProperties.Travel);
+        //var rayEnd = rayStart - localUpDirection * (suspension.RestLength + wheelProperties.Radius);
+        var rayEnd = rayStart - localUpDirection * (2f + wheelProperties.Radius);
 
         var raycastInput = new RaycastInput()
         {
@@ -55,8 +68,8 @@ public partial struct WheelRaycastJob : IJobEntity
             Filter = collisionFilter,
         };
 
-        wheelHitData.WheelCenter = localPosition - localUp * wheelProperties.Travel;
-        wheelHitData.Velocity = PhysicsWorld.GetLinearVelocity(rigIndex, wheelHitData.WheelCenter);
+        wheelHitData.WheelCenter = localPosition - localUpDirection * suspension.SpringLength;
+        wheelHitData.Velocity = PhysicsWorld.GetLinearVelocity(rigidbodyIndex, wheelHitData.WheelCenter);
         wheelHitData.HasHit = false;
 
         if (math.length(wheelHitData.Velocity) > 50)
@@ -71,6 +84,15 @@ public partial struct WheelRaycastJob : IJobEntity
             wheelHitData.HasHit = true;
             wheelHitData.Position = result.Position;
             wheelHitData.SurfaceFriction = result.Material.Friction;
+
+            PhysicsWorld.ApplyImpulse(rigidbodyIndex, 10000 * localUpDirection, 
+                localPosition - localUpDirection * suspension.SpringLength);
         }
+        else
+        {
+            float3 impulsePoint = PhysicsWorld.Bodies[rigidbodyIndex].WorldFromBody.pos;
+            PhysicsWorld.ApplyImpulse(rigidbodyIndex, 10000 * localUpDirection, impulsePoint);
+        }*/
     }
+
 }

@@ -15,15 +15,41 @@ public class VehicleMono : MonoBehaviour
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic);
 
-            AddComponent(entity, new VehicleEntityProperties
+            var vehicleProperties = new VehicleEntityProperties
             {
-                VehicleEntity = entity,
-                VehicleMaximumForwardSpeed = authoring.VehicleMaximumForwardSpeed,
                 VehicleMaximumBackwardSpeed = authoring.VehicleMaximumBackwardSpeed,
-            });
+                VehicleMaximumForwardSpeed = authoring.VehicleMaximumForwardSpeed,
+                VehicleEntity = entity,
+            };
 
+            AddComponent(entity, vehicleProperties);
             AddComponent(entity, new EntityInputsData { });
         }
     }
+}
 
+
+[TemporaryBakingType]
+public struct VehicleBakingData : IComponentData
+{
+    public UnityObjectRef<VehicleMono> Authoring;
+}
+
+
+
+[WorldSystemFilter(WorldSystemFilterFlags.BakingSystem)]
+[UpdateInGroup(typeof(PostBakingSystemGroup))]
+public partial class VehicleBaker : SystemBase
+{
+    protected override void OnUpdate()
+    {
+        Entities
+            .WithEntityQueryOptions(EntityQueryOptions.IncludePrefab)
+            .WithStructuralChanges()
+            .ForEach((Entity entity, ref VehicleBakingData vehicleBakingData) =>
+            {
+                var vehicleAuthoring = vehicleBakingData.Authoring.Value;
+            }).Run();
+
+    }
 }

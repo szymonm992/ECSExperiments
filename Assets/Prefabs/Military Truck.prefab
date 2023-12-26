@@ -308,6 +308,9 @@ MonoBehaviour:
   mass: 30
   radius: 0.46
   thickness: 0.34
+  restLength: 0.45
+  springStiffness: 1
+  damperStiffness: 1
 --- !u!1 &1480961462974377203
 GameObject:
   m_ObjectHideFlags: 0
@@ -1202,6 +1205,9 @@ MonoBehaviour:
   mass: 30
   radius: 0.46
   thickness: 0.34
+  restLength: 0.45
+  springStiffness: 1
+  damperStiffness: 1
 --- !u!1 &4893388386180736006
 GameObject:
   m_ObjectHideFlags: 0
@@ -2066,6 +2072,9 @@ MonoBehaviour:
   mass: 30
   radius: 0.46
   thickness: 0.34
+  restLength: 0.45
+  springStiffness: 1
+  damperStiffness: 1
 --- !u!1 &6412366458677151571
 GameObject:
   m_ObjectHideFlags: 0
@@ -2365,6 +2374,9 @@ MonoBehaviour:
   mass: 30
   radius: 0.46
   thickness: 0.34
+  restLength: 0.45
+  springStiffness: 1
+  damperStiffness: 1
 --- !u!1 &7143735152827877373
 GameObject:
   m_ObjectHideFlags: 0

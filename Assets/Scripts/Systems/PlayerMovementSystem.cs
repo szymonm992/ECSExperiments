@@ -14,6 +14,7 @@ public partial struct PlayerMovementSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+
         
         foreach (var (inputs, properties) in SystemAPI.Query<RefRO<EntityInputsData>, RefRW<VehicleEntityProperties>>())
         {
