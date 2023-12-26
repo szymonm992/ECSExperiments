@@ -13,7 +13,7 @@ public class VehicleMono : MonoBehaviour
     {
         public override void Bake(VehicleMono authoring)
         {
-            var entity = GetEntity(TransformUsageFlags.Dynamic);
+            var entity = GetEntity(authoring.gameObject, TransformUsageFlags.Dynamic);
 
             var vehicleProperties = new VehicleEntityProperties
             {

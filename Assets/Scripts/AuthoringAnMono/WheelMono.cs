@@ -26,7 +26,7 @@ public class WheelMono : MonoBehaviour
     {
         public override void Bake(WheelMono authoring)
         {
-            var entity = GetEntity(authoring.gameObject, TransformUsageFlags.Dynamic);
+            var entity = GetEntity(TransformUsageFlags.Dynamic);
 
             var wheelBakingData = new WheelBakingData()
             {

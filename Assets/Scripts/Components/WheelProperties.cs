@@ -2,7 +2,6 @@ using Unity.Entities;
 
 public struct WheelProperties : IComponentData
 {
-
     public Entity Entity;
     public float Spring;
     public float Damper;

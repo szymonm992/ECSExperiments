@@ -6,6 +6,7 @@ using Unity.Physics;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
 public partial struct PlayerMovementSystem : ISystem
@@ -14,7 +15,6 @@ public partial struct PlayerMovementSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-
         
         foreach (var (inputs, properties) in SystemAPI.Query<RefRO<EntityInputsData>, RefRW<VehicleEntityProperties>>())
         {
@@ -42,7 +42,7 @@ public partial struct PlayerMovementSystem : ISystem
 
             var currentVelocity = PhysicsWorld.GetLinearVelocity(rigidbodyIndex);
             var currentMaxSpeed = isInputPositive ? Properties.VehicleMaximumForwardSpeed : Properties.VehicleMaximumBackwardSpeed;
-            var currentSpeed = math.length(currentVelocity);
+            var currentSpeed = math.length(currentVelocity) * 4f;
 
             if (currentSpeed <= currentMaxSpeed)
             {
@@ -51,6 +51,10 @@ public partial struct PlayerMovementSystem : ISystem
                 float3 worldForwardDirection = new float3(0, 0, 1);
                 float3 impulsePoint = PhysicsWorld.Bodies[rigidbodyIndex].WorldFromBody.pos;
                 float3 localForwardDirection = math.mul(vehicleTransform.Rotation, worldForwardDirection);
+
+                #if UNITY_EDITOR
+                Debug.DrawRay(impulsePoint, localForwardDirection * 5f, Color.white);
+                #endif
 
                 float impulsePower = Inputs.Vertical * currentMaxSpeed;
                 float3 impulse = impulsePower * localForwardDirection;
