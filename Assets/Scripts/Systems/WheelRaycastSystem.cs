@@ -33,7 +33,8 @@ public partial struct WheelRaycastJob : IJobEntity
     public PhysicsWorld PhysicsWorld;
     [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
 
-    private void Execute(Entity entity, in VehicleEntityProperties vehicleEntityProperties, in WheelProperties wheelProperties)
+    private void Execute(Entity entity, in VehicleEntityProperties vehicleEntityProperties,
+        in WheelProperties wheelProperties, ref WheelHitData wheelHitData)
     {
         var wheelTransform = LocalTransformLookup[entity];
         var vehicleTransform = LocalTransformLookup[vehicleEntityProperties.VehicleEntity];
@@ -54,9 +55,22 @@ public partial struct WheelRaycastJob : IJobEntity
             Filter = collisionFilter,
         };
 
+        wheelHitData.WheelCenter = localPosition - localUp * wheelProperties.Travel;
+        wheelHitData.Velocity = PhysicsWorld.GetLinearVelocity(rigIndex, wheelHitData.WheelCenter);
+        wheelHitData.HasHit = false;
+
+        if (math.length(wheelHitData.Velocity) > 50)
+        {
+            wheelHitData.Reset();
+            return;
+        }
+
         if (PhysicsWorld.CastRay(raycastInput, out RaycastHit result))
         {
-
+            wheelHitData.Origin = localPosition;
+            wheelHitData.HasHit = true;
+            wheelHitData.Position = result.Position;
+            wheelHitData.SurfaceFriction = result.Material.Friction;
         }
     }
 }
