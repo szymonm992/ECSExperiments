@@ -136,6 +136,7 @@ GameObject:
   - component: {fileID: 200353565}
   - component: {fileID: 200353564}
   - component: {fileID: 200353563}
+  - component: {fileID: 200353567}
   m_Layer: 5
   m_Name: HUD
   m_TagString: Untagged
@@ -175,6 +176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d490ac00bf423cb48a33ecd4056a20f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCanvasGroup: {fileID: 200353567}
   speedometer: {fileID: 1965690386}
 --- !u!114 &200353564
 MonoBehaviour:
@@ -239,6 +241,18 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
+--- !u!225 &200353567
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200353561}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0
