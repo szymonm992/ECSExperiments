@@ -11,16 +11,18 @@ public class WheelMono : MonoBehaviour
     public float Mass => mass;
     public float Radius => radius;
     public float Thickness => thickness;
-    public float RestLength => restLength;
+    public float SpringLength => springLength;
+    public WheelSide WheelSide => wheelSide;
 
     [SerializeField] private float spring;
     [SerializeField] private float damper;
     [SerializeField] private float mass;
     [SerializeField] private float radius;
     [SerializeField] private float thickness;
-    [SerializeField] private float restLength;
+    [SerializeField] private float springLength;
     [SerializeField] private float springStiffness;
     [SerializeField] private float damperStiffness;
+    [SerializeField] private WheelSide wheelSide;
 
     public class Baker : Baker<WheelMono>
     {
@@ -63,10 +65,10 @@ public partial class WheelBaker : SystemBase
 
                 var suspension = new Suspension
                 {
-                    RestLength = wheelAuthoring.RestLength,
+                    RestLength = wheelAuthoring.SpringLength,
                     SpringStiffness = wheelAuthoring.SpringStiffness,
                     DamperStiffness = wheelAuthoring.DamperStiffness,
-                    SpringLength = wheelAuthoring.RestLength
+                    SpringLength = wheelAuthoring.SpringLength
                 };
 
                 var wheelProperties = new WheelProperties
@@ -77,7 +79,8 @@ public partial class WheelBaker : SystemBase
                     Mass = wheelAuthoring.Mass,
                     Radius = wheelAuthoring.Radius,
                     Thickness = wheelAuthoring.Thickness,
-                    Travel = wheelAuthoring.RestLength,
+                    SpringLength = wheelAuthoring.SpringLength,
+                    Side = wheelAuthoring.WheelSide,
                 };
 
                 EntityManager.AddComponentData(wheelEntity, wheelProperties);
@@ -86,5 +89,12 @@ public partial class WheelBaker : SystemBase
 
             }).Run();
     }
+}
+
+public enum WheelSide
+{
+    Center = 0,
+    Left = -1,
+    Right = 1,
 }
 

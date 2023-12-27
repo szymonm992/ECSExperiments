@@ -8,7 +8,8 @@ public struct WheelProperties : IComponentData
     public float Mass;
     public float Radius;
     public float Thickness;
-    public float Travel;
+    public float SpringLength;
+    public WheelSide Side;
 }
 
 public struct Suspension : IComponentData
