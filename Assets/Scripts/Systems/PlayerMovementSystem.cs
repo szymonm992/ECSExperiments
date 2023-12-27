@@ -58,7 +58,7 @@ public partial struct PlayerMovementSystem : ISystem
 
             ReturnedValues[0] = currentSpeed;
 
-            if (!wheelProperties.IsGrounded)
+            if (!wheelProperties.IsGrounded || !wheelProperties.CanDrive)
             {
                 return;
             }

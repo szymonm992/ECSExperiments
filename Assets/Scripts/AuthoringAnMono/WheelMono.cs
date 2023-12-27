@@ -13,6 +13,7 @@ public class WheelMono : MonoBehaviour
     public float Thickness => thickness;
     public float SpringLength => springLength;
     public WheelSide WheelSide => wheelSide;
+    public bool CanDrive => canDrive;
 
     [SerializeField] private float spring;
     [SerializeField] private float damper;
@@ -23,6 +24,7 @@ public class WheelMono : MonoBehaviour
     [SerializeField] private float springStiffness;
     [SerializeField] private float damperStiffness;
     [SerializeField] private WheelSide wheelSide;
+    [SerializeField] private bool canDrive;
 
     public class Baker : Baker<WheelMono>
     {
@@ -73,7 +75,7 @@ public partial class WheelBaker : SystemBase
                     Thickness = wheelAuthoring.Thickness,
                     SpringLength = wheelAuthoring.SpringLength,
                     Side = wheelAuthoring.WheelSide,
-                    IsGrounded = wheelAuthoring.IsGrounded,
+                    CanDrive = wheelAuthoring.CanDrive,
                 };
 
                 EntityManager.AddComponentData(wheelEntity, wheelProperties);

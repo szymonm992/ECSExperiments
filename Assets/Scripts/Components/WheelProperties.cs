@@ -10,5 +10,6 @@ public struct WheelProperties : IComponentData
     public float Thickness;
     public float SpringLength;
     public bool IsGrounded;
+    public bool CanDrive;
     public WheelSide Side;
 }

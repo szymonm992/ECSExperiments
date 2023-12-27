@@ -76,12 +76,6 @@ public partial struct WheelRaycastJob : IJobEntity
 
         wheelProperties.IsGrounded = PhysicsWorld.CollisionWorld.CastRay(raycastInput, out var result);
 
-        if (math.length(wheelHitData.Velocity) > 50)
-        {
-            wheelHitData.Reset();
-            return;
-        }
-
         #if UNITY_EDITOR
         Color rayColor = wheelProperties.IsGrounded ? Color.green : Color.red;
         Debug.DrawRay(rayStart, rayEnd - rayStart, rayColor);
@@ -95,6 +89,7 @@ public partial struct WheelRaycastJob : IJobEntity
             wheelHitData.HitPoint = result.Position;
             wheelHitData.SurfaceFriction = result.Material.Friction;
             wheelHitData.Distance = (raycastDistance - wheelProperties.Radius);
+            wheelHitData.WheelCenter = rayStart - (localUpDirection * raycastDistance);
 
             #if UNITY_EDITOR
             Color color = wheelProperties.IsGrounded ? Color.green : Color.red;
@@ -118,7 +113,7 @@ public partial struct WheelRaycastJob : IJobEntity
             if (downForceLimit < impulseUp)
             {
                 totalSuspensionForce = impulseUp * localUpDirection;
-                PhysicsWorld.ApplyImpulse(rigidbodyIndex, totalSuspensionForce, rayEnd);
+                PhysicsWorld.ApplyImpulse(rigidbodyIndex, totalSuspensionForce, wheelTransform.Position);
             }
         }
     }
