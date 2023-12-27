@@ -21,7 +21,7 @@ public class HUDController : MonoBehaviour
         entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
         //We can replace it with PlayerTag or another marker
-        playerEntity = entityManager.CreateEntityQuery(typeof(EntityInputsData)).GetSingletonEntity();
+        playerEntity = entityManager.CreateEntityQuery(typeof(InputsData)).GetSingletonEntity();
         initialized = true;
 
         ToggleHUD(true, 2f);
@@ -67,7 +67,7 @@ public class HUDController : MonoBehaviour
     {
         if (initialized)
         {
-            var currentSpeed = entityManager.GetComponentData<VehicleEntityProperties>(playerEntity).CurrentSpeed;
+            var currentSpeed = entityManager.GetComponentData<VehicleProperties>(playerEntity).CurrentSpeed;
             speedometer.text = currentSpeed.ToString("F1");
         }
     }

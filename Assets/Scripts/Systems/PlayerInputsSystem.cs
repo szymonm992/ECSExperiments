@@ -13,7 +13,7 @@ public partial class PlayerInputsSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        foreach(var data in SystemAPI.Query<RefRW<EntityInputsData>>())
+        foreach(var data in SystemAPI.Query<RefRW<InputsData>>())
         {
             data.ValueRW.Vertical = controls.Player.Move.ReadValue<Vector2>().y;
             data.ValueRW.Horizontal = controls.Player.Move.ReadValue<Vector2>().x;

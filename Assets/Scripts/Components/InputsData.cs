@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public struct EntityInputsData : IComponentData
+public struct InputsData : IComponentData
 {
     public float Horizontal;
     public float Vertical;

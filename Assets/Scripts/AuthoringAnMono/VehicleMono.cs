@@ -15,7 +15,7 @@ public class VehicleMono : MonoBehaviour
         {
             var entity = GetEntity(authoring.gameObject, TransformUsageFlags.Dynamic);
 
-            var vehicleProperties = new VehicleEntityProperties
+            var vehicleProperties = new VehicleProperties
             {
                 VehicleMaximumBackwardSpeed = authoring.VehicleMaximumBackwardSpeed,
                 VehicleMaximumForwardSpeed = authoring.VehicleMaximumForwardSpeed,
@@ -23,7 +23,7 @@ public class VehicleMono : MonoBehaviour
             };
 
             AddComponent(entity, vehicleProperties);
-            AddComponent(entity, new EntityInputsData { });
+            AddComponent(entity, new InputsData { });
         }
     }
 }

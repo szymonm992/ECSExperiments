@@ -303,12 +303,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 300
-  damper: 60
+  spring: 250
+  damper: 75
   mass: 30
   radius: 0.46
   thickness: 0.34
-  springLength: 1
+  springLength: 0.5
   springStiffness: 1
   damperStiffness: 0.2
   wheelSide: -1
@@ -1201,12 +1201,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 300
-  damper: 60
+  spring: 250
+  damper: 75
   mass: 30
   radius: 0.46
   thickness: 0.34
-  springLength: 1
+  springLength: 0.5
   springStiffness: 1
   damperStiffness: 0.2
   wheelSide: -1
@@ -1630,7 +1630,7 @@ MonoBehaviour:
   m_OverrideDefaultMassDistribution: 0
   m_CenterOfMass:
     x: 0
-    y: -2
+    y: 1
     z: 0
   m_Orientation:
     Value:
@@ -2069,12 +2069,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 300
-  damper: 60
+  spring: 250
+  damper: 75
   mass: 30
   radius: 0.46
   thickness: 0.34
-  springLength: 1
+  springLength: 0.5
   springStiffness: 1
   damperStiffness: 0.2
   wheelSide: 1
@@ -2372,12 +2372,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 300
-  damper: 60
+  spring: 250
+  damper: 75
   mass: 30
   radius: 0.46
   thickness: 0.34
-  springLength: 1
+  springLength: 0.5
   springStiffness: 1
   damperStiffness: 0.2
   wheelSide: 1

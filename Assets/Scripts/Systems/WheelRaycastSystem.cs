@@ -14,7 +14,7 @@ public partial struct WheelRaycastSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<VehicleEntityProperties>();
+        state.RequireForUpdate<VehicleProperties>();
     }
 
     [BurstCompile]
@@ -22,9 +22,9 @@ public partial struct WheelRaycastSystem : ISystem
     {
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
-        foreach (var vehicleEntityProperties in SystemAPI.Query<RefRO<VehicleEntityProperties>>())
+        foreach (var vehicleEntityProperties in SystemAPI.Query<RefRO<VehicleProperties>>())
         {
-            foreach (var (wheel, hitData, suspensionData) in SystemAPI.Query<RefRO<WheelProperties>, RefRW<WheelHitData>, RefRO<Suspension>>())
+            foreach (var (wheel, hitData) in SystemAPI.Query<RefRW<WheelProperties>, RefRW<WheelHitData>>())
             {
                 var wheelRaycastJob = new WheelRaycastJob()
                 {
@@ -43,14 +43,14 @@ public partial struct WheelRaycastSystem : ISystem
 [BurstCompile]
 [WithAll(typeof(Simulate))]
 public partial struct WheelRaycastJob : IJobEntity
-{ 
-    public PhysicsWorld PhysicsWorld;
-    public VehicleEntityProperties VehicleEntityProperties;
-
+{
     [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
     [ReadOnly] public ComponentLookup<LocalToWorld> WorldTransformLookup;
 
-    private void Execute(in WheelProperties wheelProperties, in Suspension suspension, ref WheelHitData wheelHitData)
+    public PhysicsWorld PhysicsWorld;
+    public VehicleProperties VehicleEntityProperties;
+
+    private void Execute(ref WheelProperties wheelProperties, ref WheelHitData wheelHitData)
     {
         var wheelTransform = WorldTransformLookup[wheelProperties.Entity];
         var vehicleTransform = LocalTransformLookup[VehicleEntityProperties.VehicleEntity];
@@ -70,9 +70,11 @@ public partial struct WheelRaycastJob : IJobEntity
             Filter = rayCollisionFilter
         };
 
-        wheelHitData.WheelCenter = rayStart - (localUpDirection * suspension.SpringLength);
+        wheelHitData.WheelCenter = rayStart - (localUpDirection * wheelProperties.SpringLength);
         wheelHitData.Velocity = PhysicsWorld.GetLinearVelocity(rigidbodyIndex, wheelHitData.WheelCenter);
         wheelHitData.HasHit = false;
+
+        wheelProperties.IsGrounded = PhysicsWorld.CollisionWorld.CastRay(raycastInput, out var result);
 
         if (math.length(wheelHitData.Velocity) > 50)
         {
@@ -80,25 +82,22 @@ public partial struct WheelRaycastJob : IJobEntity
             return;
         }
 
-        bool isGrounded = PhysicsWorld.CollisionWorld.CastRay(raycastInput, out var result);
-
         #if UNITY_EDITOR
-        Color rayColor = isGrounded ? Color.green : Color.red;
+        Color rayColor = wheelProperties.IsGrounded ? Color.green : Color.red;
         Debug.DrawRay(rayStart, rayEnd - rayStart, rayColor);
         #endif
 
-        if (isGrounded)
+        if (wheelProperties.IsGrounded)
         {
             float raycastDistance = math.distance(result.Position, rayStart);
 
-            wheelHitData.Origin = rayStart;
             wheelHitData.HasHit = true;
-            wheelHitData.Position = result.Position;
+            wheelHitData.HitPoint = result.Position;
             wheelHitData.SurfaceFriction = result.Material.Friction;
-            wheelHitData.Distance = raycastDistance - wheelProperties.Radius;
+            wheelHitData.Distance = (raycastDistance - wheelProperties.Radius);
 
             #if UNITY_EDITOR
-            Color color = isGrounded ? Color.green : Color.red;
+            Color color = wheelProperties.IsGrounded ? Color.green : Color.red;
             float3 localRightDirection = math.mul(wheelTransform.Rotation, 
                 new float3((int)wheelProperties.Side, 0, 0));
             Debug.DrawRay(wheelHitData.WheelCenter, localRightDirection, color);

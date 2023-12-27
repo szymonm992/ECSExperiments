@@ -16,15 +16,23 @@ public partial struct PlayerMovementSystem : ISystem
     {
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
         
-        foreach (var (inputs, properties) in SystemAPI.Query<RefRO<EntityInputsData>, RefRW<VehicleEntityProperties>>())
+        foreach (var (inputs, properties) in SystemAPI.Query<RefRO<InputsData>, RefRW<VehicleProperties>>())
         {
-            var vehicleDriveJob = new DriveJob
+            foreach (var (wheel, hitData) in SystemAPI.Query<RefRO<WheelProperties>, RefRO<WheelHitData>>())
             {
-                PhysicsWorld = physicsWorld,
-                LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true)
-            };
-   
-            state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
+                NativeArray<float> returnedValues = new (2, Allocator.TempJob);
+                var vehicleDriveJob = new DriveJob
+                {
+                    PhysicsWorld = physicsWorld,
+                    LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
+                    Inputs = inputs.ValueRO,
+                    VehicleProperties = properties.ValueRO,
+                    ReturnedValues = returnedValues,
+                };
+
+                properties.ValueRW.CurrentSpeed = returnedValues[0];
+                state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
+            }
         }
     }
 
@@ -33,37 +41,40 @@ public partial struct PlayerMovementSystem : ISystem
     public partial struct DriveJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
-        public PhysicsWorld PhysicsWorld;
+        [ReadOnly] public VehicleProperties VehicleProperties;
+        [ReadOnly] public InputsData Inputs;
 
-        private void Execute(ref VehicleEntityProperties Properties, in EntityInputsData Inputs)
+        public PhysicsWorld PhysicsWorld;
+        public NativeArray<float> ReturnedValues;
+
+        private void Execute(in WheelProperties wheelProperties, in WheelHitData hitData)
         {
             bool isInputPositive = Inputs.Vertical.IsNumberPositive();
-            var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(Properties.VehicleEntity);
+            var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(VehicleProperties.VehicleEntity);
 
             var currentVelocity = PhysicsWorld.GetLinearVelocity(rigidbodyIndex);
-            var currentMaxSpeed = isInputPositive ? Properties.VehicleMaximumForwardSpeed : Properties.VehicleMaximumBackwardSpeed;
+            var currentMaxSpeed = isInputPositive ? VehicleProperties.VehicleMaximumForwardSpeed : VehicleProperties.VehicleMaximumBackwardSpeed;
             var currentSpeed = math.length(currentVelocity) * 4f;
+
+            ReturnedValues[0] = currentSpeed;
+
+            if (!wheelProperties.IsGrounded)
+            {
+                return;
+            }
 
             if (currentSpeed <= currentMaxSpeed)
             {
-                LocalTransform vehicleTransform = LocalTransformLookup[Properties.VehicleEntity];
+                LocalTransform vehicleTransform = LocalTransformLookup[VehicleProperties.VehicleEntity];
 
                 float3 worldForwardDirection = new float3(0, 0, 1);
-                float3 impulsePoint = PhysicsWorld.Bodies[rigidbodyIndex].WorldFromBody.pos;
                 float3 localForwardDirection = math.mul(vehicleTransform.Rotation, worldForwardDirection);
 
-                #if UNITY_EDITOR
-                Debug.DrawRay(impulsePoint, localForwardDirection * 5f, Color.white);
-                #endif
-
-                float impulsePower = Inputs.Vertical * currentMaxSpeed;
+                float impulsePower = Inputs.Vertical * (currentMaxSpeed * 0.5f);
                 float3 impulse = impulsePower * localForwardDirection;
 
-                PhysicsWorld.ApplyImpulse(rigidbodyIndex, impulse, impulsePoint);
-
+                PhysicsWorld.ApplyImpulse(rigidbodyIndex, impulse, hitData.HitPoint);
             }
-
-            Properties.CurrentSpeed = currentSpeed;
         }
     }
 }

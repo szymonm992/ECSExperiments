@@ -1,9 +1,9 @@
 using UnityEngine;
 using Unity.Entities;
-using UnityEditor.PackageManager;
 
 public class WheelMono : MonoBehaviour
 {
+    public bool IsGrounded { get; set; }
     public float Spring => spring;
     public float SpringStiffness => springStiffness;
     public float Damper => damper;
@@ -63,14 +63,6 @@ public partial class WheelBaker : SystemBase
                 var wheelAuthoring = wheelBakingData.Authoring.Value;
                 var wheelEntity = wheelBakingData.WheelEntity;
 
-                var suspension = new Suspension
-                {
-                    RestLength = wheelAuthoring.SpringLength,
-                    SpringStiffness = wheelAuthoring.SpringStiffness,
-                    DamperStiffness = wheelAuthoring.DamperStiffness,
-                    SpringLength = wheelAuthoring.SpringLength
-                };
-
                 var wheelProperties = new WheelProperties
                 {
                     Entity = wheelEntity,
@@ -81,10 +73,10 @@ public partial class WheelBaker : SystemBase
                     Thickness = wheelAuthoring.Thickness,
                     SpringLength = wheelAuthoring.SpringLength,
                     Side = wheelAuthoring.WheelSide,
+                    IsGrounded = wheelAuthoring.IsGrounded,
                 };
 
                 EntityManager.AddComponentData(wheelEntity, wheelProperties);
-                EntityManager.AddComponentData(wheelEntity, suspension);
                 EntityManager.AddComponent<WheelHitData>(wheelEntity);
 
             }).Run();
