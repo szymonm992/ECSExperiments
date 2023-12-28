@@ -303,8 +303,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 700
-  damper: 175
+  spring: 800
+  damper: 200
   mass: 30
   radius: 0.46
   thickness: 0.34
@@ -1200,8 +1200,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 700
-  damper: 175
+  spring: 800
+  damper: 200
   mass: 30
   radius: 0.46
   thickness: 0.34
@@ -2072,8 +2072,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 700
-  damper: 175
+  spring: 800
+  damper: 200
   mass: 30
   radius: 0.46
   thickness: 0.34
@@ -2374,8 +2374,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 700
-  damper: 175
+  spring: 800
+  damper: 200
   mass: 30
   radius: 0.46
   thickness: 0.34
