@@ -6,7 +6,6 @@ using Unity.Physics;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
-using UnityEngine;
 
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
 public partial struct PlayerMovementSystem : ISystem
@@ -18,7 +17,6 @@ public partial struct PlayerMovementSystem : ISystem
 
         foreach (var (inputs, properties) in SystemAPI.Query<RefRO<InputsData>, RefRO<VehicleProperties>>())
         {
-
             var vehicleDriveJob = new DriveJob
             {
                 PhysicsWorld = physicsWorld,
@@ -29,8 +27,6 @@ public partial struct PlayerMovementSystem : ISystem
             };
             state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
         }
-
-         
     }
 }
 
