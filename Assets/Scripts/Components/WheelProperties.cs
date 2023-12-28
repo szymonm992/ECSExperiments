@@ -3,6 +3,7 @@ using Unity.Entities;
 public struct WheelProperties : IComponentData
 {
     public Entity Entity;
+    public Entity VehicleEntity;
     public float Spring;
     public float Damper;
     public float Mass;

@@ -1,13 +1,12 @@
 using UnityEngine;
 using Unity.Entities;
+using Unity.Mathematics;
 
 public class WheelMono : MonoBehaviour
 {
     public bool IsGrounded { get; set; }
     public float Spring => spring;
-    public float SpringStiffness => springStiffness;
     public float Damper => damper;
-    public float DamperStiffness => damperStiffness;
     public float Mass => mass;
     public float Radius => radius;
     public float Thickness => thickness;
@@ -21,11 +20,9 @@ public class WheelMono : MonoBehaviour
     [SerializeField] private float radius;
     [SerializeField] private float thickness;
     [SerializeField] private float springLength;
-    [SerializeField] private float springStiffness;
-    [SerializeField] private float damperStiffness;
     [SerializeField] private WheelSide wheelSide;
     [SerializeField] private bool canDrive;
-
+    
     public class Baker : Baker<WheelMono>
     {
         public override void Bake(WheelMono authoring)
@@ -48,11 +45,13 @@ public struct WheelBakingData : IComponentData
 {
     public UnityObjectRef<WheelMono> Authoring;
     public Entity WheelEntity;
+   // public Entity VehicleEntity;
 }
 
 
 [WorldSystemFilter(WorldSystemFilterFlags.BakingSystem)]
 [UpdateInGroup(typeof(PostBakingSystemGroup))]
+//[UpdateAfter(typeof(VehicleBaker))]
 public partial class WheelBaker : SystemBase
 {
     protected override void OnUpdate()
@@ -68,6 +67,7 @@ public partial class WheelBaker : SystemBase
                 var wheelProperties = new WheelProperties
                 {
                     Entity = wheelEntity,
+                    //VehicleEntity = wheelBakingData.VehicleEntity,
                     Spring = wheelAuthoring.Spring,
                     Damper = wheelAuthoring.Damper,
                     Mass = wheelAuthoring.Mass,

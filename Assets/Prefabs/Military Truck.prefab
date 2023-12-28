@@ -312,6 +312,7 @@ MonoBehaviour:
   springStiffness: 1
   damperStiffness: 0.2
   wheelSide: -1
+  canDrive: 1
 --- !u!1 &1480961462974377203
 GameObject:
   m_ObjectHideFlags: 0
@@ -1210,6 +1211,7 @@ MonoBehaviour:
   springStiffness: 1
   damperStiffness: 0.2
   wheelSide: -1
+  canDrive: 1
 --- !u!1 &4893388386180736006
 GameObject:
   m_ObjectHideFlags: 0
@@ -1666,6 +1668,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vehicleMaximumForwardSpeed: 70
   vehicleMaximumBackwardSpeed: 48
+  wheels:
+  - {fileID: 4605947691085485876}
+  - {fileID: 6374471030619526714}
+  - {fileID: 1197999830677032016}
+  - {fileID: 7132113132683114237}
 --- !u!1 &6072360304708816657
 GameObject:
   m_ObjectHideFlags: 0
@@ -2078,6 +2085,7 @@ MonoBehaviour:
   springStiffness: 1
   damperStiffness: 0.2
   wheelSide: 1
+  canDrive: 1
 --- !u!1 &6412366458677151571
 GameObject:
   m_ObjectHideFlags: 0
@@ -2381,6 +2389,7 @@ MonoBehaviour:
   springStiffness: 1
   damperStiffness: 0.2
   wheelSide: 1
+  canDrive: 1
 --- !u!1 &7143735152827877373
 GameObject:
   m_ObjectHideFlags: 0

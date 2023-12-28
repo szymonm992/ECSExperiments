@@ -17,6 +17,7 @@ public class HUDController : MonoBehaviour
 
     public void InitializeHUD()
     {
+        /*
         initialized = false;
         entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
@@ -25,7 +26,7 @@ public class HUDController : MonoBehaviour
         initialized = true;
 
         ToggleHUD(true, 2f);
-        Debug.Log("Initialized HUD Controller");
+        Debug.Log("Initialized HUD Controller");*/
     }
 
     public void ToggleHUD(bool value, float duration = 0f)

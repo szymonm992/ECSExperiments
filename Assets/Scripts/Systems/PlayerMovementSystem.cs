@@ -14,69 +14,61 @@ public partial struct PlayerMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+        /*var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
         
-        foreach (var (inputs, properties) in SystemAPI.Query<RefRO<InputsData>, RefRW<VehicleProperties>>())
-        {
-            foreach (var (wheel, hitData) in SystemAPI.Query<RefRO<WheelProperties>, RefRO<WheelHitData>>())
-            {
-                NativeArray<float> returnedValues = new (2, Allocator.TempJob);
-                var vehicleDriveJob = new DriveJob
-                {
-                    PhysicsWorld = physicsWorld,
-                    LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
-                    Inputs = inputs.ValueRO,
-                    VehicleProperties = properties.ValueRO,
-                    ReturnedValues = returnedValues,
-                };
+       foreach (var (inputs, properties) in SystemAPI.Query<RefRO<InputsData>, RefRO<VehicleProperties>>())
+       {
 
-                properties.ValueRW.CurrentSpeed = returnedValues[0];
-                state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
-            }
-        }
+           var vehicleDriveJob = new DriveJob
+           {
+               PhysicsWorld = physicsWorld,
+               LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
+               InputsData = inputs.ValueRO,
+               VehicleProperties = properties.ValueRO,
+               FixedTime = SystemAPI.Time.DeltaTime,
+           };
+
+           state.Dependency = vehicleDriveJob.Schedule(state.Dependency);*/
     }
+}
+/*
+[BurstCompile]
+[WithAll(typeof(Simulate))]
+public partial struct DriveJob : IJobEntity
+{
+    [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
+    [ReadOnly] public InputsData InputsData;
+    [ReadOnly] public VehicleProperties VehicleProperties;
 
-    [BurstCompile]
-    [WithAll(typeof(Simulate))]
-    public partial struct DriveJob : IJobEntity
+    public PhysicsWorld PhysicsWorld;
+    public float FixedTime;
+
+    private void Execute(in WheelProperties wheelProperties, in WheelHitData hitData)
     {
-        [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
-        [ReadOnly] public VehicleProperties VehicleProperties;
-        [ReadOnly] public InputsData Inputs;
+        bool isInputPositive = InputsData.Vertical.IsNumberPositive();
 
-        public PhysicsWorld PhysicsWorld;
-        public NativeArray<float> ReturnedValues;
+        var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(VehicleProperties.VehicleEntity);
+        var currentMaxSpeed = isInputPositive ? VehicleProperties.VehicleMaximumForwardSpeed : VehicleProperties.VehicleMaximumBackwardSpeed;
 
-        private void Execute(in WheelProperties wheelProperties, in WheelHitData hitData)
+        if (!wheelProperties.IsGrounded || !wheelProperties.CanDrive)
         {
-            bool isInputPositive = Inputs.Vertical.IsNumberPositive();
-            var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(VehicleProperties.VehicleEntity);
+            return;
+        }
 
-            var currentVelocity = PhysicsWorld.GetLinearVelocity(rigidbodyIndex);
-            var currentMaxSpeed = isInputPositive ? VehicleProperties.VehicleMaximumForwardSpeed : VehicleProperties.VehicleMaximumBackwardSpeed;
-            var currentSpeed = math.length(currentVelocity) * 4f;
+        if (VehicleProperties.CurrentSpeed <= currentMaxSpeed)
+        {
+            LocalTransform vehicleTransform = LocalTransformLookup[VehicleProperties.VehicleEntity];
 
-            ReturnedValues[0] = currentSpeed;
+            float3 worldForwardDirection = new float3(0, 0, 1);
+            float3 localForwardDirection = math.mul(vehicleTransform.Rotation, worldForwardDirection);
 
-            if (!wheelProperties.IsGrounded || !wheelProperties.CanDrive)
-            {
-                return;
-            }
+            float impulsePower = InputsData.Vertical * (currentMaxSpeed * 0.5f);
+            float3 impulse = impulsePower * localForwardDirection;
 
-            if (currentSpeed <= currentMaxSpeed)
-            {
-                LocalTransform vehicleTransform = LocalTransformLookup[VehicleProperties.VehicleEntity];
-
-                float3 worldForwardDirection = new float3(0, 0, 1);
-                float3 localForwardDirection = math.mul(vehicleTransform.Rotation, worldForwardDirection);
-
-                float impulsePower = Inputs.Vertical * (currentMaxSpeed * 0.5f);
-                float3 impulse = impulsePower * localForwardDirection;
-
-                PhysicsWorld.ApplyImpulse(rigidbodyIndex, impulse, hitData.HitPoint);
-            }
+            PhysicsWorld.ApplyImpulse(rigidbodyIndex, impulse, hitData.HitPoint);
         }
     }
 }
+}*/
 
 
