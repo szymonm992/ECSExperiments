@@ -13,7 +13,6 @@ public partial struct UpdateUISystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        
         state.Enabled = false;
 
         if (HUDController.Instance == null)

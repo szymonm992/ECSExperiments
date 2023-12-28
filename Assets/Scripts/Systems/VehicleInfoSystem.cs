@@ -7,7 +7,7 @@ using Unity.Physics.Systems;
 
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
 public partial struct VehicleInfoSystem : ISystem
-{/*
+{
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
@@ -34,6 +34,6 @@ public partial struct VehicleInfoSystem : ISystem
 
             vehicleProperties.CurrentSpeed = currentSpeed;
         }
-    }*/
+    }
 }
 
