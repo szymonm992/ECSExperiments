@@ -8,12 +8,12 @@ public partial struct UpdateUISystem : ISystem
     public void OnCreate(ref SystemState state)
     {
         //We do not want it to run until we have entity setup
-        //state.RequireForUpdate<VehicleProperties>();
+        state.RequireForUpdate<VehicleProperties>();
     }
 
     public void OnUpdate(ref SystemState state)
     {
-        /*
+        
         state.Enabled = false;
 
         if (HUDController.Instance == null)
@@ -21,6 +21,6 @@ public partial struct UpdateUISystem : ISystem
             return;
         }
 
-        HUDController.Instance.InitializeHUD();*/
+        HUDController.Instance.InitializeHUD();
     }
 }

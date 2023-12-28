@@ -2,9 +2,11 @@ using UnityEngine;
 using TMPro;
 using Unity.Entities;
 using DG.Tweening;
+using Unity.Collections;
 
 public class HUDController : MonoBehaviour
 {
+    public const float INITIALIZATION_HUD_FADE_DURATION = 2f;
     public static HUDController Instance;
 
     [SerializeField] private CanvasGroup mainCanvasGroup;
@@ -17,16 +19,30 @@ public class HUDController : MonoBehaviour
 
     public void InitializeHUD()
     {
-        /*
+        
         initialized = false;
         entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
         
         //We can replace it with PlayerTag or another marker
-        playerEntity = entityManager.CreateEntityQuery(typeof(InputsData)).GetSingletonEntity();
-        initialized = true;
+        var inputsDataQuery = entityManager.CreateEntityQuery(typeof(InputsData));
+        var entities = inputsDataQuery.ToEntityArray(Allocator.TempJob);
 
-        ToggleHUD(true, 2f);
-        Debug.Log("Initialized HUD Controller");*/
+        if (entities.Length > 0)
+        {
+            playerEntity = entities[0];
+        }
+        else
+        {
+            Debug.LogError($"No entities of {nameof(InputsData)} have been found! Canceling {nameof(HUDController)} initialization!");
+            entities.Dispose();
+            return;
+        }
+
+        initialized = true;
+        entities.Dispose();
+
+        ToggleHUD(true, INITIALIZATION_HUD_FADE_DURATION);
+        Debug.Log("Initialized HUD Controller");
     }
 
     public void ToggleHUD(bool value, float duration = 0f)
