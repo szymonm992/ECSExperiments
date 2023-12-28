@@ -6,6 +6,7 @@ using Unity.Physics;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
+using UnityEditor;
 using UnityEngine;
 
 namespace ECSExperiment.Wheels
@@ -18,18 +19,16 @@ namespace ECSExperiment.Wheels
         public void OnUpdate(ref SystemState state)
         {
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-            foreach (var vehicleEntityProperties in SystemAPI.Query<RefRO<VehicleProperties>>())
-            {
+           
                 var wheelRaycastJob = new WheelRaycastJob
                 {
                     PhysicsWorld = physicsWorld,
                     LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
                     WorldTransformLookup = SystemAPI.GetComponentLookup<LocalToWorld>(true),
-                    VehicleEntityProperties = vehicleEntityProperties.ValueRO,
-
                 };
+
                 state.Dependency = wheelRaycastJob.Schedule(state.Dependency);
-            }
+            
 
             /*
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
@@ -140,17 +139,16 @@ namespace ECSExperiment.Wheels
         public PhysicsWorld PhysicsWorld;
         [ReadOnly] public ComponentLookup<LocalTransform> LocalTransformLookup;
         [ReadOnly] public ComponentLookup<LocalToWorld> WorldTransformLookup;
-        public VehicleProperties VehicleEntityProperties;
 
         private void Execute(ref WheelProperties wheelProperties, ref WheelHitData wheelHitData)
         {
             var wheelTransform = WorldTransformLookup[wheelProperties.Entity];
-            var vehicleTransform = LocalTransformLookup[VehicleEntityProperties.VehicleEntity];
+            var vehicleTransform = LocalTransformLookup[wheelProperties.VehicleEntity];
 
             float3 worldUpDirection = new float3(0, 1, 0);
             float3 localUpDirection = math.mul(vehicleTransform.Rotation, worldUpDirection);
 
-            var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(VehicleEntityProperties.VehicleEntity);
+            var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(wheelProperties.VehicleEntity);
             var rayStart = wheelTransform.Position + (localUpDirection * wheelProperties.Radius);
             var rayEnd = rayStart - localUpDirection * (wheelProperties.SpringLength + wheelProperties.Radius);
             var rayCollisionFilter = PhysicsWorld.GetCollisionFilter(rigidbodyIndex);
@@ -191,13 +189,15 @@ namespace ECSExperiment.Wheels
 #endif
 
                 var velocityAtWheel = PhysicsWorld.GetLinearVelocity(rigidbodyIndex, wheelHitData.WheelCenter);
-                var invertedWheelsCount = (1f / VehicleEntityProperties.WheelsAmount);
+                var invertedWheelsCount = (1f / 4f);
                 var currentSpeedUp = math.dot(velocityAtWheel, localUpDirection);
 
                 float3 lvA = currentSpeedUp * localUpDirection;
                 float3 lvB = PhysicsWorld.GetLinearVelocity(result.RigidBodyIndex, result.Position);
                 float3 totalSuspensionForce = (wheelProperties.Spring * (result.Position - rayEnd))
                     + (wheelProperties.Damper * (lvB - lvA)) * invertedWheelsCount;
+
+                Debug.DrawRay(wheelTransform.Position, totalSuspensionForce, Color.black);
 
                 float impulseUp = math.dot(totalSuspensionForce, localUpDirection);
                 float downForceLimit = -0.25f;

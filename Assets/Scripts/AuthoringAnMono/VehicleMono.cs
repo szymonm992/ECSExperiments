@@ -85,14 +85,14 @@ public partial class VehicleBaker : SystemBase
                     VehicleEntity = entity,
                     WheelsAmount = vehicleAuthoring.Wheels.Count(),
                 };
-                /*
+                
                 foreach (var wheelEntity in vehicleBakingData.Wheels)
                 {
                     var wheelBakingData = EntityManager.GetComponentData<WheelBakingData>(wheelEntity);
                     wheelBakingData.VehicleEntity = entity;
                     EntityManager.SetComponentData(wheelEntity, wheelBakingData);
                 }
-                */
+                
                 EntityManager.AddComponentData(entity, vehicleProperties);
 
             }).Run();

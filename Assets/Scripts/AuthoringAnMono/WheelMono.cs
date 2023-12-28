@@ -45,13 +45,13 @@ public struct WheelBakingData : IComponentData
 {
     public UnityObjectRef<WheelMono> Authoring;
     public Entity WheelEntity;
-   // public Entity VehicleEntity;
+    public Entity VehicleEntity;
 }
 
 
 [WorldSystemFilter(WorldSystemFilterFlags.BakingSystem)]
 [UpdateInGroup(typeof(PostBakingSystemGroup))]
-//[UpdateAfter(typeof(VehicleBaker))]
+[UpdateAfter(typeof(VehicleBaker))]
 public partial class WheelBaker : SystemBase
 {
     protected override void OnUpdate()
@@ -67,7 +67,7 @@ public partial class WheelBaker : SystemBase
                 var wheelProperties = new WheelProperties
                 {
                     Entity = wheelEntity,
-                    //VehicleEntity = wheelBakingData.VehicleEntity,
+                    VehicleEntity = wheelBakingData.VehicleEntity,
                     Spring = wheelAuthoring.Spring,
                     Damper = wheelAuthoring.Damper,
                     Mass = wheelAuthoring.Mass,
