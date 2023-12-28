@@ -14,24 +14,26 @@ public partial struct PlayerMovementSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        /*var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
-        
-       foreach (var (inputs, properties) in SystemAPI.Query<RefRO<InputsData>, RefRO<VehicleProperties>>())
-       {
+        var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
-           var vehicleDriveJob = new DriveJob
-           {
-               PhysicsWorld = physicsWorld,
-               LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
-               InputsData = inputs.ValueRO,
-               VehicleProperties = properties.ValueRO,
-               FixedTime = SystemAPI.Time.DeltaTime,
-           };
+        foreach (var (inputs, properties) in SystemAPI.Query<RefRO<InputsData>, RefRO<VehicleProperties>>())
+        {
 
-           state.Dependency = vehicleDriveJob.Schedule(state.Dependency);*/
+            var vehicleDriveJob = new DriveJob
+            {
+                PhysicsWorld = physicsWorld,
+                LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
+                InputsData = inputs.ValueRO,
+                VehicleProperties = properties.ValueRO,
+                FixedTime = SystemAPI.Time.DeltaTime,
+            };
+            state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
+        }
+
+         
     }
 }
-/*
+
 [BurstCompile]
 [WithAll(typeof(Simulate))]
 public partial struct DriveJob : IJobEntity
@@ -47,7 +49,7 @@ public partial struct DriveJob : IJobEntity
     {
         bool isInputPositive = InputsData.Vertical.IsNumberPositive();
 
-        var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(VehicleProperties.VehicleEntity);
+        var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(wheelProperties.VehicleEntity);
         var currentMaxSpeed = isInputPositive ? VehicleProperties.VehicleMaximumForwardSpeed : VehicleProperties.VehicleMaximumBackwardSpeed;
 
         if (!wheelProperties.IsGrounded || !wheelProperties.CanDrive)
@@ -57,7 +59,7 @@ public partial struct DriveJob : IJobEntity
 
         if (VehicleProperties.CurrentSpeed <= currentMaxSpeed)
         {
-            LocalTransform vehicleTransform = LocalTransformLookup[VehicleProperties.VehicleEntity];
+            LocalTransform vehicleTransform = LocalTransformLookup[wheelProperties.VehicleEntity];
 
             float3 worldForwardDirection = new float3(0, 0, 1);
             float3 localForwardDirection = math.mul(vehicleTransform.Rotation, worldForwardDirection);
@@ -69,6 +71,6 @@ public partial struct DriveJob : IJobEntity
         }
     }
 }
-}*/
+
 
 
