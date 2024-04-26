@@ -305,7 +305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spring: 750
   damper: 200
-  mass: 30
+  mass: 20
   radius: 0.46
   thickness: 0.34
   springLength: 0.5
@@ -1202,7 +1202,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spring: 750
   damper: 200
-  mass: 30
+  mass: 20
   radius: 0.46
   thickness: 0.34
   springLength: 0.5
@@ -1624,7 +1624,7 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  m_GravityFactor: 1
+  m_GravityFactor: 0
   m_OverrideDefaultMassDistribution: 0
   m_CenterOfMass:
     x: 0
@@ -2074,7 +2074,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spring: 750
   damper: 200
-  mass: 30
+  mass: 20
   radius: 0.46
   thickness: 0.34
   springLength: 0.5
@@ -2376,7 +2376,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spring: 750
   damper: 200
-  mass: 30
+  mass: 20
   radius: 0.46
   thickness: 0.34
   springLength: 0.5

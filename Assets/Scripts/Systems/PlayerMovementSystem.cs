@@ -6,6 +6,7 @@ using Unity.Physics;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
+using UnityEngine;
 
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
 public partial struct PlayerMovementSystem : ISystem
@@ -23,7 +24,7 @@ public partial struct PlayerMovementSystem : ISystem
                 LocalTransformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true),
                 InputsData = inputs.ValueRO,
                 VehicleProperties = properties.ValueRO,
-                FixedTime = SystemAPI.Time.DeltaTime,
+                FixedTime = SystemAPI.Time.fixedDeltaTime,
             };
             state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
         }
@@ -47,24 +48,52 @@ public partial struct DriveJob : IJobEntity
 
         var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(wheelProperties.VehicleEntity);
         var currentMaxSpeed = isInputPositive ? VehicleProperties.VehicleMaximumForwardSpeed : VehicleProperties.VehicleMaximumBackwardSpeed;
+        LocalTransform vehicleTransform = LocalTransformLookup[wheelProperties.VehicleEntity];
+
+        float3 worldUpDirection = new float3(0, 1, 0);
+        //float3 localUpDirection = math.mul(vehicleTransform.Rotation, worldUpDirection);
+        float3 gravityImpulse = -9.81f * worldUpDirection;
+        PhysicsWorld.ApplyImpulse(rigidbodyIndex, gravityImpulse, vehicleTransform.Position);
 
         if (!wheelProperties.IsGrounded || !wheelProperties.CanDrive)
         {
             return;
         }
 
+        float3 worldForwardDirection = new float3(0, 0, 1);
+        float3 localForwardDirection = math.mul(vehicleTransform.Rotation, worldForwardDirection);
+
         if (VehicleProperties.CurrentSpeed <= currentMaxSpeed)
         {
-            LocalTransform vehicleTransform = LocalTransformLookup[wheelProperties.VehicleEntity];
-
-            float3 worldForwardDirection = new float3(0, 0, 1);
-            float3 localForwardDirection = math.mul(vehicleTransform.Rotation, worldForwardDirection);
-
             float impulsePower = InputsData.Vertical * (currentMaxSpeed * 0.5f);
             float3 impulse = impulsePower * localForwardDirection;
 
             PhysicsWorld.ApplyImpulse(rigidbodyIndex, impulse, hitData.HitPoint);
         }
+
+        float FRICTION_GRIP_FACTOR = 1f;
+        float3 localRightDirection = math.mul(vehicleTransform.Rotation, new float3(-1, 0, 0));
+
+        var tireVel = PhysicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.HitPoint);
+        
+        float steeringVel = math.dot(localRightDirection, tireVel);
+        float desiredSidewaysVelChange = -steeringVel * FRICTION_GRIP_FACTOR;
+        float desiredSidewaysAccel = desiredSidewaysVelChange / FixedTime;
+
+        PhysicsWorld.ApplyImpulse(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.HitPoint);
+
+
+        tireVel = PhysicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.HitPoint);
+
+        float forwardVel = math.dot(localForwardDirection, tireVel);
+        float desiredForwardVelChange = -forwardVel * FRICTION_GRIP_FACTOR;
+        float desiredForwardAccel = desiredForwardVelChange / FixedTime;
+
+        PhysicsWorld.ApplyImpulse(rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.HitPoint);
+
+        Debug.DrawRay(hitData.HitPoint, localForwardDirection, Color.blue);
+        Debug.DrawRay(hitData.HitPoint, localRightDirection, Color.red);
+
     }
 }
 
