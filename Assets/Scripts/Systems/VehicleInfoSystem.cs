@@ -11,13 +11,14 @@ public partial struct VehicleInfoSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        /*
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
         var vehicleDriveJob = new CalculateVehicleInfoJob
         {
             PhysicsWorld = physicsWorld,
         };
 
-        state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
+        state.Dependency = vehicleDriveJob.Schedule(state.Dependency);*/
     }
 
     [BurstCompile]

@@ -6,6 +6,7 @@ public struct WheelHitData : IComponentData
     public float3 WheelCenter;
     public float3 HitPoint;
     public float3 Velocity;
+    public float3 Normal;
 
     public float SurfaceFriction;
     public float Distance;
@@ -17,6 +18,7 @@ public struct WheelHitData : IComponentData
         WheelCenter = float3.zero; 
         HitPoint = float3.zero;
         Velocity = float3.zero;
+        Normal = float3.zero;
 
         SurfaceFriction = 0;
         Distance = 0;

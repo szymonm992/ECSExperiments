@@ -339,8 +339,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.063077785, y: -0.62423754, z: 0.050673842, w: 0.77703345}
-  m_LocalPosition: {x: 13.360252, y: 3.7816155, z: -7.1630135}
+  m_LocalRotation: {x: 0.20018996, y: 0.7426124, z: -0.25337574, w: 0.5867296}
+  m_LocalPosition: {x: -8.575066, y: 12.110371, z: -20.562916}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -586,15 +586,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45a335734b1572644a6a5d09d87adc65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _SceneAsset: {fileID: 102900000, guid: e58ce8586542c354b9043d686296d876, type: 3}
+  _SceneAsset: {fileID: 102900000, guid: 8bede68ea2fa8014ca41ae4e87107e3a, type: 3}
   _HierarchyColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   AutoLoadScene: 1
   _SceneGUID:
     Value:
-      x: 2240727134
-      y: 1161569366
-      z: 2261991579
-      w: 1737320742
+      x: 3899580088
+      y: 1091088170
+      z: 3840545964
+      w: 2749825400
 --- !u!4 &1702543287
 Transform:
   m_ObjectHideFlags: 0
@@ -816,8 +816,8 @@ CanvasRenderer:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 330585546}
   - {fileID: 410087041}
+  - {fileID: 330585546}
   - {fileID: 832575519}
   - {fileID: 200353562}
   - {fileID: 1702543287}

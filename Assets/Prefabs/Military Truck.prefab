@@ -51,7 +51,7 @@ MonoBehaviour:
     z: 0
   m_PrimitiveSize:
     x: 2.433826
-    y: 1.3897749
+    y: 6.4
     z: 1.4475006
   m_PrimitiveOrientation:
     Value:
@@ -60,15 +60,15 @@ MonoBehaviour:
       z: 0
     RotationOrder: 4
   m_Capsule:
-    Height: 2.433826
-    Radius: 0.7237503
-    Axis: 0
+    Height: 6.4
+    Radius: 1.216913
+    Axis: 1
   m_Cylinder:
-    Height: 2.433826
-    Radius: 0.7237503
-    Axis: 0
+    Height: 6.4
+    Radius: 1.216913
+    Axis: 1
   m_CylinderSideCount: 20
-  m_SphereRadius: 1.216913
+  m_SphereRadius: 3.2
   m_MinimumSkinnedVertexWeight: 0.1
   m_ConvexHullGenerationParameters:
     m_SimplificationTolerance: 0.015
@@ -777,7 +777,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3249824160628242043}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b275e5f92732148048d7b77e264ac30e, type: 3}
   m_Name: 
@@ -1775,7 +1775,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6147408014261531966}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b275e5f92732148048d7b77e264ac30e, type: 3}
   m_Name: 

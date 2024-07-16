@@ -11,7 +11,6 @@ using UnityEngine;
 namespace ECSExperiment.Wheels
 {
     [UpdateInGroup(typeof(PhysicsSimulationGroup))]
-    [UpdateBefore(typeof(PlayerMovementSystem))]
     public partial struct WheelRaycastSystem : ISystem
     {
         [BurstCompile]
@@ -43,8 +42,7 @@ namespace ECSExperiment.Wheels
             var wheelTransform = WorldTransformLookup[wheelProperties.Entity];
             var vehicleTransform = LocalTransformLookup[wheelProperties.VehicleEntity];
 
-            float3 worldUpDirection = new float3(0, 1, 0);
-            float3 localUpDirection = math.mul(vehicleTransform.Rotation, worldUpDirection);
+            float3 localUpDirection = math.mul(vehicleTransform.Rotation, math.up());
 
             var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(wheelProperties.VehicleEntity);
             var rayStart = wheelTransform.Position + (localUpDirection * wheelProperties.Radius);
@@ -76,15 +74,10 @@ namespace ECSExperiment.Wheels
                 wheelHitData.HasHit = true;
                 wheelHitData.HitPoint = result.Position;
                 wheelHitData.SurfaceFriction = result.Material.Friction;
+                wheelHitData.Normal = result.SurfaceNormal;
                 wheelHitData.Distance = (raycastDistance - wheelProperties.Radius);
                 wheelHitData.WheelCenter = rayStart - (localUpDirection * raycastDistance);
 
-#if UNITY_EDITOR
-                Color color = wheelProperties.IsGrounded ? Color.green : Color.red;
-                float3 localRightDirection = math.mul(wheelTransform.Rotation,
-                    new float3((int)wheelProperties.Side, 0, 0));
-                Debug.DrawRay(wheelHitData.WheelCenter, localRightDirection, color);
-#endif
 
                 var velocityAtWheel = PhysicsWorld.GetLinearVelocity(rigidbodyIndex, wheelHitData.WheelCenter);
                 var invertedWheelsCount = (1f / 4f);
@@ -95,7 +88,8 @@ namespace ECSExperiment.Wheels
                 float3 totalSuspensionForce = (wheelProperties.Spring * (result.Position - rayEnd))
                     + (wheelProperties.Damper * (lvB - lvA)) * invertedWheelsCount;
 
-                Debug.DrawRay(wheelTransform.Position, totalSuspensionForce, Color.black);
+                Debug.DrawRay(wheelHitData.WheelCenter, math.up(), Color.yellow);
+                Debug.DrawRay(wheelHitData.WheelCenter, localUpDirection, Color.cyan);
 
                 float impulseUp = math.dot(totalSuspensionForce, localUpDirection);
                 float downForceLimit = -0.25f;
@@ -103,9 +97,16 @@ namespace ECSExperiment.Wheels
                 if (downForceLimit < impulseUp)
                 {
                     totalSuspensionForce = impulseUp * localUpDirection;
-                    PhysicsWorld.ApplyImpulse(rigidbodyIndex, totalSuspensionForce, wheelTransform.Position);
+                    PhysicsWorld.ApplyImpulse(rigidbodyIndex, totalSuspensionForce, wheelHitData.WheelCenter);
                 }
             }
+
+#if UNITY_EDITOR
+            Color color = wheelProperties.IsGrounded ? Color.green : Color.red;
+            float3 localRightDirection = math.mul(wheelTransform.Rotation,
+                new float3((int)wheelProperties.Side, 0, 0));
+            Debug.DrawRay(wheelHitData.WheelCenter, localRightDirection, color);
+#endif
         }
     }
 }

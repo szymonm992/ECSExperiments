@@ -1,6 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
-using Unity.Mathematics;
+
 
 public class WheelMono : MonoBehaviour
 {
@@ -22,7 +22,40 @@ public class WheelMono : MonoBehaviour
     [SerializeField] private float springLength;
     [SerializeField] private WheelSide wheelSide;
     [SerializeField] private bool canDrive;
-    
+
+    public float suspensionTravel = 0.2f;
+    public float damping = 5000;
+    public float inertia = 2.2f;
+    public float grip = 1.0f;
+    public float brakeFrictionTorque = 4000;
+    public float handbrakeFrictionTorque = 0;
+    public float frictionTorque = 10;
+    public float maxSteeringAngle = 28f;
+    public float massFraction = 0.25f;
+    public float[] a = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
+    public float[] b = { 1.0f, -60f, 1588f, 0f, 229f, 0f, 0f, 0f, -10f, 0f, 0f };
+    public float driveTorque = 0;
+    public float driveFrictionTorque = 0;
+    public float brake = 0;
+    public float handbrake = 0;
+    public float steering = 0;
+    public float drivetrainInertia = 0;
+    public float suspensionForceInput = 0;
+    public float angularVelocity;
+    public float slipRatio;
+    public float slipVelo;
+    public float compression;
+    public float fullCompressionSpringForce;
+    public Vector3 wheelVelo;
+    public Vector3 localVelo;
+    public Vector3 groundNormal;
+    public float rotation;
+    public float normalForce;
+    public float slipAngle;
+    public float maxSlip;
+    public float maxAngle;
+    public float oldAngle;
+
     public class Baker : Baker<WheelMono>
     {
         public override void Bake(WheelMono authoring)
@@ -76,12 +109,37 @@ public partial class WheelBaker : SystemBase
                     SpringLength = wheelAuthoring.SpringLength,
                     Side = wheelAuthoring.WheelSide,
                     CanDrive = wheelAuthoring.CanDrive,
+
+                    slipAngle = wheelAuthoring.slipAngle,
+                    slipRatio = wheelAuthoring.slipRatio,
+                    slipVelo = wheelAuthoring.slipVelo,
+                    steering =  wheelAuthoring.steering,
+                    driveFrictionTorque = wheelAuthoring.driveFrictionTorque,
+                    driveTorque = wheelAuthoring.driveTorque,
+                    drivetrainInertia = wheelAuthoring.drivetrainInertia,
+                    angularVelocity = wheelAuthoring.angularVelocity,
+                    brake = wheelAuthoring.brake,
+                    compression = wheelAuthoring.compression,
+                    fullCompressionSpringForce = wheelAuthoring.fullCompressionSpringForce,
+                    brakeFrictionTorque = wheelAuthoring.brakeFrictionTorque,
+                    frictionTorque = wheelAuthoring.frictionTorque,
+                    handbrakeFrictionTorque = wheelAuthoring.handbrakeFrictionTorque,
+                    maxSlip = wheelAuthoring.maxSlip,
+                    maxSteeringAngle = wheelAuthoring.maxSteeringAngle,
+                    grip = wheelAuthoring.grip,
+                    handbrake = wheelAuthoring.handbrake,
+                    inertia = wheelAuthoring.inertia,
+                    localVelo = wheelAuthoring.localVelo,
+                    maxAngle = wheelAuthoring.maxAngle,
+                    wheelVelo = wheelAuthoring.wheelVelo,
+                    oldAngle = wheelAuthoring.oldAngle,
+                    massFraction = wheelAuthoring.massFraction,
                 };
 
                 EntityManager.AddComponentData(wheelEntity, wheelProperties);
                 EntityManager.AddComponent<WheelHitData>(wheelEntity);
 
-            }).Run();
+            }).Run();  
     }
 }
 
