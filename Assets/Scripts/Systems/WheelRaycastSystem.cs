@@ -11,16 +11,14 @@ using System.Collections.Generic;
 
 namespace ECSExperiment.Wheels
 {
-    [UpdateInGroup(typeof(PhysicsSimulationGroup))]
-    [UpdateBefore(typeof(PlayerMovementSystem))]
+    [UpdateInGroup(typeof(PhysicsSimulationGroup), OrderFirst = true)]
     public partial struct WheelRaycastSystem : ISystem
     {
-
         public void OnUpdate(ref SystemState state)
         {
             state.Dependency.Complete();
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-
+            List<(int rigId, float3 force, float3 point)> impulsePoints = new();
 
             foreach (var (wheelProperties, wheelHitData, wheelCastOriginLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRW<WheelHitData>, RefRO<LocalTransform>>())
             {
@@ -41,10 +39,8 @@ namespace ECSExperiment.Wheels
                 var springDirection = math.mul(wheelCastOriginGlobalTransform.Rotation, math.up());
                 var wheelRightLocal = math.mul(wheelCastOriginGlobalTransform.Rotation, math.right());
 
-                float3 localUpDirection = math.mul(wheelCastOriginGlobalTransform.Rotation, math.up());
-
-                var rayStart = wheelCastOriginGlobalTransform.Position + (localUpDirection * wheelProperties.ValueRO.Radius);
-                var rayEnd = rayStart - localUpDirection * (wheelProperties.ValueRO.SpringLength + wheelProperties.ValueRO.Radius);
+                var rayStart = wheelCastOriginGlobalTransform.Position + (springDirection * wheelProperties.ValueRO.Radius);
+                var rayEnd = rayStart - springDirection * (wheelProperties.ValueRO.SpringLength + wheelProperties.ValueRO.Radius);
 
                 var raycastInput = new RaycastInput
                 {
@@ -53,7 +49,7 @@ namespace ECSExperiment.Wheels
                     Filter = CollisionFilter.Default,
                 };
 
-                wheelHitData.ValueRW.WheelCenter = rayStart - (localUpDirection * wheelProperties.ValueRO.SpringLength);
+                wheelHitData.ValueRW.WheelCenter = rayStart - (springDirection * wheelProperties.ValueRO.SpringLength);
                 wheelHitData.ValueRW.Velocity = physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelHitData.ValueRO.WheelCenter);
                 wheelHitData.ValueRW.HasHit = false;
 
@@ -69,28 +65,29 @@ namespace ECSExperiment.Wheels
                     wheelHitData.ValueRW.HitPoint = result.Position;
                     wheelHitData.ValueRW.SurfaceFriction = result.Material.Friction;
                     wheelHitData.ValueRW.Distance = (raycastDistance - wheelProperties.ValueRO.Radius);
-                    wheelHitData.ValueRW.WheelCenter = rayStart - (localUpDirection * raycastDistance);
+                    wheelHitData.ValueRW.WheelCenter = rayStart - (springDirection * raycastDistance);
 
 
                     var velocityAtWheel = physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelHitData.ValueRO.WheelCenter);
                     var invertedWheelsCount = (1f / 4f);
-                    var currentSpeedUp = math.dot(velocityAtWheel, localUpDirection);
+                    var currentSpeedUp = math.dot(velocityAtWheel, springDirection);
 
-                    float3 lvA = currentSpeedUp * localUpDirection;
+                    float3 lvA = currentSpeedUp * springDirection;
                     float3 lvB = physicsWorld.GetLinearVelocity(result.RigidBodyIndex, wheelHitData.ValueRO.WheelCenter);
                     float3 totalSuspensionForce = (wheelProperties.ValueRO.Spring * (result.Position - rayEnd))
                         + (wheelProperties.ValueRO.Damper * (lvB - lvA)) * invertedWheelsCount;
 
                     Debug.DrawRay(wheelHitData.ValueRO.WheelCenter, math.up(), Color.yellow);
-                    Debug.DrawRay(wheelHitData.ValueRO.WheelCenter, localUpDirection, Color.cyan);
+                    Debug.DrawRay(wheelHitData.ValueRO.WheelCenter, springDirection, Color.cyan);
 
-                    float impulseUp = math.dot(totalSuspensionForce, localUpDirection);
+                    float impulseUp = math.dot(totalSuspensionForce, springDirection);
                     float downForceLimit = -0.25f;
 
                     if (downForceLimit < impulseUp)
                     {
-                        totalSuspensionForce = impulseUp * localUpDirection;
-                        physicsWorld.ApplyImpulse(rigidbodyIndex, totalSuspensionForce, wheelHitData.ValueRO.WheelCenter);
+                        totalSuspensionForce = impulseUp * springDirection;
+                        //physicsWorld.ApplyImpulse(rigidbodyIndex, totalSuspensionForce, wheelHitData.ValueRO.WheelCenter);
+                        impulsePoints.Add(new(rigidbodyIndex, totalSuspensionForce, wheelHitData.ValueRO.WheelCenter));
                     }
                 }
                 else
@@ -106,6 +103,11 @@ namespace ECSExperiment.Wheels
 #endif
             }
 
+
+            foreach (var chuj in impulsePoints)
+            {
+                physicsWorld.ApplyImpulse(chuj.rigId, chuj.force, chuj.point);
+            }
         }
     }
 }

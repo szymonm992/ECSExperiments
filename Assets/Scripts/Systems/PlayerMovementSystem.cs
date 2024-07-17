@@ -8,13 +8,16 @@ using Unity.Physics.Systems;
 using Unity.Transforms;
 using UnityEngine;
 using System.Collections.Generic;
+using ECSExperiment.Wheels;
 
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
+[UpdateAfter(typeof(WheelRaycastSystem))]
 public partial struct PlayerMovementSystem : ISystem
 {
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        state.Dependency.Complete();
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
         /*foreach (var (wheelProperties, hitData, wheelTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalToWorld>>())
@@ -61,7 +64,7 @@ public partial struct PlayerMovementSystem : ISystem
             wheelProperties.ValueRW.compression = Mathf.Clamp01(wheelProperties.ValueRW.compression);
             */
 
-
+        List<(int rigId, float3 force, float3 point)> impulsePoints = new();
         foreach (var (wheelProperties, hitData, wheelLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalTransform>>())
         {
             var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
@@ -78,7 +81,6 @@ public partial struct PlayerMovementSystem : ISystem
 
             float3 localRightDirection = math.mul(wheelCastOriginGlobalTransform.Rotation, math.right());
             float3 localForwardDirection = math.forward(wheelCastOriginGlobalTransform.Rotation);
-            float3 springDir = math.mul(wheelCastOriginGlobalTransform.Rotation, math.up());
             var tireVel = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
 
             float steeringVel = math.dot(localRightDirection, tireVel);
@@ -87,8 +89,8 @@ public partial struct PlayerMovementSystem : ISystem
 
             if (wheelProperties.ValueRO.IsGrounded)
             {
-
-                physicsWorld.ApplyImpulse(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter);
+                impulsePoints.Add(new(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter));
+                //physicsWorld.ApplyImpulse(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter);
             }
 
             float forwardVel = math.dot(localForwardDirection, tireVel);
@@ -97,13 +99,19 @@ public partial struct PlayerMovementSystem : ISystem
 
             if (wheelProperties.ValueRO.IsGrounded)
             {
-
-                physicsWorld.ApplyImpulse(rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter);
+                impulsePoints.Add(new (rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter));
+                //physicsWorld.ApplyImpulse(rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter);
             }
 
 
             Debug.DrawRay(hitData.ValueRO.HitPoint, localForwardDirection, Color.blue);
             Debug.DrawRay(hitData.ValueRO.HitPoint, localRightDirection, Color.red);
+        }
+
+
+        foreach (var chuj in impulsePoints)
+        {
+            physicsWorld.ApplyImpulse(chuj.rigId, chuj.force, chuj.point);
         }
     }
 }
