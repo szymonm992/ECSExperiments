@@ -8,150 +8,150 @@ using Unity.Physics.Systems;
 using Unity.Transforms;
 using UnityEngine;
 
-[UpdateInGroup(typeof(PhysicsSimulationGroup))]
-[UpdateAfter(typeof(WheelRaycastSystem))]
-public partial struct PlayerMovementSystem : ISystem
-{
-    public static readonly float[] a = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
-    public static readonly float[] b = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
+//[UpdateInGroup(typeof(PhysicsSimulationGroup))]
+//[UpdateAfter(typeof(WheelRaycastSystem))]
+//public partial struct PlayerMovementSystem : ISystem
+//{
+//    public static readonly float[] a = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
+//    public static readonly float[] b = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
 
-    public void OnStartRunning(ref SystemState state)
-    {/*
-        foreach (var wheelProperties in SystemAPI.Query<RefRW<WheelProperties>>())
-        {
-            const float stepSize = 0.001f;
-            const float testNormalForce = 4000f;
-            float force = 0;
+//    public void OnStartRunning(ref SystemState state)
+//    {/*
+//        foreach (var wheelProperties in SystemAPI.Query<RefRW<WheelProperties>>())
+//        {
+//            const float stepSize = 0.001f;
+//            const float testNormalForce = 4000f;
+//            float force = 0;
 
-            for (float slip = stepSize; ; slip += stepSize)
-            {
-                float newForce = CalcLongitudinalForce(b, testNormalForce, slip);
+//            for (float slip = stepSize; ; slip += stepSize)
+//            {
+//                float newForce = CalcLongitudinalForce(b, testNormalForce, slip);
 
-                if (force < newForce)
-                {
-                    force = newForce;
-                }
-                else
-                {
-                    wheelProperties.ValueRW.maxSlip = slip - stepSize;
-                    break;
-                }
-            }
+//                if (force < newForce)
+//                {
+//                    force = newForce;
+//                }
+//                else
+//                {
+//                    wheelProperties.ValueRW.maxSlip = slip - stepSize;
+//                    break;
+//                }
+//            }
 
-            force = 0;
+//            force = 0;
 
-            for (float slipAngle = stepSize; ; slipAngle += stepSize)
-            {
-                float newForce = CalcLateralForce(b, testNormalForce, slipAngle);
+//            for (float slipAngle = stepSize; ; slipAngle += stepSize)
+//            {
+//                float newForce = CalcLateralForce(b, testNormalForce, slipAngle);
 
-                if (force < newForce)
-                {
-                    force = newForce;
-                }
-                else
-                {
-                    wheelProperties.ValueRW.maxAngle = slipAngle - stepSize;
-                    break;
-                }
-            }
+//                if (force < newForce)
+//                {
+//                    force = newForce;
+//                }
+//                else
+//                {
+//                    wheelProperties.ValueRW.maxAngle = slipAngle - stepSize;
+//                    break;
+//                }
+//            }
 
-            wheelProperties.ValueRW.fullCompressionSpringForce = wheelProperties.ValueRO.massFraction * 2.0f * -Physics.gravity.y;
-        }*/
-    }
+//            wheelProperties.ValueRW.fullCompressionSpringForce = wheelProperties.ValueRO.massFraction * 2.0f * -Physics.gravity.y;
+//        }*/
+//    }
 
-    public void OnUpdate(ref SystemState state)
-    {
-        state.Dependency.Complete();
-        var physicsWorld = SystemAPI.GetSingletonRW<PhysicsWorldSingleton>().ValueRW.PhysicsWorld;
-        state.EntityManager.CompleteDependencyBeforeRW<PhysicsWorldSingleton>();
+//    public void OnUpdate(ref SystemState state)
+//    {
+//        state.Dependency.Complete();
+//        var physicsWorld = SystemAPI.GetSingletonRW<PhysicsWorldSingleton>().ValueRW.PhysicsWorld;
+//        state.EntityManager.CompleteDependencyBeforeRW<PhysicsWorldSingleton>();
 
-        /*foreach (var (wheelProperties, hitData, wheelTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalToWorld>>())
-        {  
-            var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
+//        /*foreach (var (wheelProperties, hitData, wheelTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalToWorld>>())
+//        {  
+//            var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
 
-            if (wheelProperties.ValueRO.IsGrounded)
-            {
-                wheelProperties.ValueRW.compression = 1.0f - ((hitData.ValueRO.Distance - wheelProperties.ValueRO.Radius) / wheelProperties.ValueRO.SpringLength);
-                wheelProperties.ValueRW.wheelVelo = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
-                wheelProperties.ValueRW.localVelo = math.mul(wheelProperties.ValueRO.inverseLocalRotation, wheelProperties.ValueRW.wheelVelo);
+//            if (wheelProperties.ValueRO.IsGrounded)
+//            {
+//                wheelProperties.ValueRW.compression = 1.0f - ((hitData.ValueRO.Distance - wheelProperties.ValueRO.Radius) / wheelProperties.ValueRO.SpringLength);
+//                wheelProperties.ValueRW.wheelVelo = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
+//                wheelProperties.ValueRW.localVelo = math.mul(wheelProperties.ValueRO.inverseLocalRotation, wheelProperties.ValueRW.wheelVelo);
 
-                float normalForce = wheelProperties.ValueRW.compression * wheelProperties.ValueRW.fullCompressionSpringForce;
-                wheelProperties.ValueRW.roadForce = RoadForce(ref state, wheelProperties, hitData, normalForce, wheelTransform.ValueRO);
+//                float normalForce = wheelProperties.ValueRW.compression * wheelProperties.ValueRW.fullCompressionSpringForce;
+//                wheelProperties.ValueRW.roadForce = RoadForce(ref state, wheelProperties, hitData, normalForce, wheelTransform.ValueRO);
 
-                physicsWorld.ApplyImpulse(rigidbodyIndex, wheelProperties.ValueRW.roadForce, hitData.ValueRO.WheelCenter);
-            }
-            else
-            {
-                wheelProperties.ValueRW.compression = 0.0f;
-                wheelProperties.ValueRW.roadForce = float3.zero;
+//                physicsWorld.ApplyImpulse(rigidbodyIndex, wheelProperties.ValueRW.roadForce, hitData.ValueRO.WheelCenter);
+//            }
+//            else
+//            {
+//                wheelProperties.ValueRW.compression = 0.0f;
+//                wheelProperties.ValueRW.roadForce = float3.zero;
 
-                float totalInertia = wheelProperties.ValueRO.inertia + wheelProperties.ValueRO.drivetrainInertia;
-                float driveAngularDelta = wheelProperties.ValueRO.driveTorque * SystemAPI.Time.DeltaTime / totalInertia;
-                float totalFrictionTorque = wheelProperties.ValueRO.brakeFrictionTorque * wheelProperties.ValueRO.brake +
-                    wheelProperties.ValueRO.handbrakeFrictionTorque * wheelProperties.ValueRO.handbrake + wheelProperties.ValueRO.frictionTorque + wheelProperties.ValueRO.driveFrictionTorque;
-                float frictionAngularDelta = totalFrictionTorque * SystemAPI.Time.DeltaTime / totalInertia;
+//                float totalInertia = wheelProperties.ValueRO.inertia + wheelProperties.ValueRO.drivetrainInertia;
+//                float driveAngularDelta = wheelProperties.ValueRO.driveTorque * SystemAPI.Time.DeltaTime / totalInertia;
+//                float totalFrictionTorque = wheelProperties.ValueRO.brakeFrictionTorque * wheelProperties.ValueRO.brake +
+//                    wheelProperties.ValueRO.handbrakeFrictionTorque * wheelProperties.ValueRO.handbrake + wheelProperties.ValueRO.frictionTorque + wheelProperties.ValueRO.driveFrictionTorque;
+//                float frictionAngularDelta = totalFrictionTorque * SystemAPI.Time.DeltaTime / totalInertia;
 
-                wheelProperties.ValueRW.angularVelocity += driveAngularDelta;
+//                wheelProperties.ValueRW.angularVelocity += driveAngularDelta;
 
-                if (math.abs(wheelProperties.ValueRW.angularVelocity) > frictionAngularDelta)
-                {
-                    wheelProperties.ValueRW.angularVelocity -= frictionAngularDelta * math.sign(wheelProperties.ValueRW.angularVelocity);
-                }
-                else
-                {
-                    wheelProperties.ValueRW.angularVelocity = 0;
-                }
+//                if (math.abs(wheelProperties.ValueRW.angularVelocity) > frictionAngularDelta)
+//                {
+//                    wheelProperties.ValueRW.angularVelocity -= frictionAngularDelta * math.sign(wheelProperties.ValueRW.angularVelocity);
+//                }
+//                else
+//                {
+//                    wheelProperties.ValueRW.angularVelocity = 0;
+//                }
 
-                wheelProperties.ValueRW.slipRatio = 0;
-                wheelProperties.ValueRW.slipVelo = 0;
-            }
+//                wheelProperties.ValueRW.slipRatio = 0;
+//                wheelProperties.ValueRW.slipVelo = 0;
+//            }
 
-            wheelProperties.ValueRW.compression = Mathf.Clamp01(wheelProperties.ValueRW.compression);
-            */
+//            wheelProperties.ValueRW.compression = Mathf.Clamp01(wheelProperties.ValueRW.compression);
+//            */
 
-        foreach (var (wheelProperties, hitData, wheelTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalToWorld>>())
-        {
-            var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
+//        foreach (var (wheelProperties, hitData, wheelTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalToWorld>>())
+//        {
+//            var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
 
-            float FRICTION_GRIP_FACTOR = 1f;
+//            float FRICTION_GRIP_FACTOR = 1f;
 
-            float3 localRightDirection = math.mul(wheelTransform.ValueRO.Rotation, math.right());
-            float3 localForwardDirection = math.forward(wheelTransform.ValueRO.Rotation);
-            float3 springDir = math.mul(wheelTransform.ValueRO.Rotation, math.up());
-            var tireVel = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
+//            float3 localRightDirection = math.mul(wheelTransform.ValueRO.Rotation, math.right());
+//            float3 localForwardDirection = math.forward(wheelTransform.ValueRO.Rotation);
+//            float3 springDir = math.mul(wheelTransform.ValueRO.Rotation, math.up());
+//            var tireVel = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
 
-            //if (wheelProperties.ValueRO.IsGrounded)
-            //{
+//            //if (!wheelProperties.ValueRO.IsGrounded)
+//            //{
 
-                //physicsWorld.ApplyAccelerationImpulse(rigidbodyIndex, Physics.gravity, physicsWorld.GetCenterOfMass(rigidbodyIndex));
-           // }
+//            //    physicsWorld.ApplyAccelerationImpulse(rigidbodyIndex, Physics.gravity, physicsWorld.GetCenterOfMass(rigidbodyIndex));
+//            //}
 
-            float steeringVel = math.dot(localRightDirection, tireVel);
-            float desiredSidewaysVelChange = -steeringVel * FRICTION_GRIP_FACTOR;
-            float desiredSidewaysAccel = desiredSidewaysVelChange / SystemAPI.Time.DeltaTime;
+//            float steeringVel = math.dot(localRightDirection, tireVel);
+//            float desiredSidewaysVelChange = -steeringVel * FRICTION_GRIP_FACTOR;
+//            float desiredSidewaysAccel = desiredSidewaysVelChange / SystemAPI.Time.DeltaTime;
 
-            if (wheelProperties.ValueRO.IsGrounded)
-            {
-                physicsWorld.ApplyImpulse(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.HitPoint);
-            }
+//            if (wheelProperties.ValueRO.IsGrounded)
+//            {
+//                physicsWorld.ApplyImpulse(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.HitPoint);
+//            }
 
-            float forwardVel = math.dot(localForwardDirection, tireVel);
-            float desiredForwardVelChange = -forwardVel * FRICTION_GRIP_FACTOR;
-            float desiredForwardAccel = desiredForwardVelChange / SystemAPI.Time.DeltaTime;
+//            float forwardVel = math.dot(localForwardDirection, tireVel);
+//            float desiredForwardVelChange = -forwardVel * FRICTION_GRIP_FACTOR;
+//            float desiredForwardAccel = desiredForwardVelChange / SystemAPI.Time.DeltaTime;
 
-            if (wheelProperties.ValueRO.IsGrounded)
-            {
-                physicsWorld.ApplyImpulse(rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.HitPoint);
-            }
+//            if (wheelProperties.ValueRO.IsGrounded)
+//            {
+//                physicsWorld.ApplyImpulse(rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.HitPoint);
+//            }
 
 
-            Debug.DrawRay(hitData.ValueRO.HitPoint, localForwardDirection, Color.blue);
-            Debug.DrawRay(hitData.ValueRO.HitPoint, localRightDirection, Color.red);
+//            Debug.DrawRay(hitData.ValueRO.HitPoint, localForwardDirection, Color.blue);
+//            Debug.DrawRay(hitData.ValueRO.HitPoint, localRightDirection, Color.red);
 
-        }
+//        }
 
-    }
-}
+//    }
+//}
 /*
     float3 RoadForce(ref SystemState state, RefRW<WheelProperties> wheelProperties, RefRO<WheelHitData> hitData, float normalForce, LocalToWorld worldTransform)
     {
