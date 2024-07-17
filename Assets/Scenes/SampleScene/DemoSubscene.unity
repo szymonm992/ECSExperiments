@@ -160,7 +160,7 @@ MonoBehaviour:
   DrawMassProperties: 0
   DrawContacts: 0
   DrawCollisionEvents: 0
-  DrawTriggerEvents: 1
+  DrawTriggerEvents: 0
   DrawJoints: 1
 --- !u!114 &116876911
 MonoBehaviour:
@@ -181,7 +181,7 @@ MonoBehaviour:
     z: -0
   m_SolverIterationCount: 4
   m_EnableSolverStabilizationHeuristic: 0
-  m_MultiThreaded: 1
+  m_MultiThreaded: 0
   m_SynchronizeCollisionWorld: 0
 --- !u!4 &116876912
 Transform:
@@ -198,74 +198,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &397930073
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5978680110334807242, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_Name
-      value: Military Truck (1)
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 7.86
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -2.2480006
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 60aa5b05e365bf14490fc3449bba9f86, type: 3}
 --- !u!1 &508733527
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,76 +477,9 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
---- !u!1001 &793588654
-PrefabInstance:
+--- !u!1 &631277667
+GameObject:
   m_ObjectHideFlags: 0
-<<<<<<< Updated upstream
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 5978680110334807242, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_Name
-      value: Military Truck (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 3.5955799
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -2.2480006
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 8772091258176817935, guid: 60aa5b05e365bf14490fc3449bba9f86,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 60aa5b05e365bf14490fc3449bba9f86, type: 3}
-=======
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
@@ -665,64 +530,6 @@ MonoBehaviour:
   springLength: 0.5
   wheelSide: 1
   canDrive: 1
-  suspensionTravel: 0.2
-  damping: 5000
-  inertia: 2.2
-  grip: 1
-  brakeFrictionTorque: 4000
-  handbrakeFrictionTorque: 0
-  frictionTorque: 10
-  maxSteeringAngle: 28
-  massFraction: 0.25
-  a:
-  - 1
-  - -60
-  - 1688
-  - 4140
-  - 6.026
-  - 0
-  - -0.3589
-  - 1
-  - 0
-  - -0.006111
-  - -0.03244
-  - 0
-  - 0
-  - 0
-  - 0
-  b:
-  - 1
-  - -60
-  - 1588
-  - 0
-  - 229
-  - 0
-  - 0
-  - 0
-  - -10
-  - 0
-  - 0
-  driveTorque: 0
-  driveFrictionTorque: 0
-  brake: 0
-  handbrake: 0
-  steering: 0
-  drivetrainInertia: 0
-  suspensionForceInput: 0
-  angularVelocity: 0
-  slipRatio: 0
-  slipVelo: 0
-  compression: 0
-  fullCompressionSpringForce: 0
-  wheelVelo: {x: 0, y: 0, z: 0}
-  localVelo: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
-  rotation: 0
-  normalForce: 0
-  slipAngle: 0
-  maxSlip: 0
-  maxAngle: 0
-  oldAngle: 0
 --- !u!1 &840564536
 GameObject:
   m_ObjectHideFlags: 0
@@ -1277,64 +1084,6 @@ MonoBehaviour:
   springLength: 0.5
   wheelSide: -1
   canDrive: 1
-  suspensionTravel: 0.2
-  damping: 5000
-  inertia: 2.2
-  grip: 1
-  brakeFrictionTorque: 4000
-  handbrakeFrictionTorque: 0
-  frictionTorque: 10
-  maxSteeringAngle: 28
-  massFraction: 0.25
-  a:
-  - 1
-  - -60
-  - 1688
-  - 4140
-  - 6.026
-  - 0
-  - -0.3589
-  - 1
-  - 0
-  - -0.006111
-  - -0.03244
-  - 0
-  - 0
-  - 0
-  - 0
-  b:
-  - 1
-  - -60
-  - 1588
-  - 0
-  - 229
-  - 0
-  - 0
-  - 0
-  - -10
-  - 0
-  - 0
-  driveTorque: 0
-  driveFrictionTorque: 0
-  brake: 0
-  handbrake: 0
-  steering: 0
-  drivetrainInertia: 0
-  suspensionForceInput: 0
-  angularVelocity: 0
-  slipRatio: 0
-  slipVelo: 0
-  compression: 0
-  fullCompressionSpringForce: 0
-  wheelVelo: {x: 0, y: 0, z: 0}
-  localVelo: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
-  rotation: 0
-  normalForce: 0
-  slipAngle: 0
-  maxSlip: 0
-  maxAngle: 0
-  oldAngle: 0
 --- !u!1 &1387606453
 GameObject:
   m_ObjectHideFlags: 0
@@ -1667,64 +1416,6 @@ MonoBehaviour:
   springLength: 0.5
   wheelSide: 1
   canDrive: 1
-  suspensionTravel: 0.2
-  damping: 5000
-  inertia: 2.2
-  grip: 1
-  brakeFrictionTorque: 4000
-  handbrakeFrictionTorque: 0
-  frictionTorque: 10
-  maxSteeringAngle: 28
-  massFraction: 0.25
-  a:
-  - 1
-  - -60
-  - 1688
-  - 4140
-  - 6.026
-  - 0
-  - -0.3589
-  - 1
-  - 0
-  - -0.006111
-  - -0.03244
-  - 0
-  - 0
-  - 0
-  - 0
-  b:
-  - 1
-  - -60
-  - 1588
-  - 0
-  - 229
-  - 0
-  - 0
-  - 0
-  - -10
-  - 0
-  - 0
-  driveTorque: 0
-  driveFrictionTorque: 0
-  brake: 0
-  handbrake: 0
-  steering: 0
-  drivetrainInertia: 0
-  suspensionForceInput: 0
-  angularVelocity: 0
-  slipRatio: 0
-  slipVelo: 0
-  compression: 0
-  fullCompressionSpringForce: 0
-  wheelVelo: {x: 0, y: 0, z: 0}
-  localVelo: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
-  rotation: 0
-  normalForce: 0
-  slipAngle: 0
-  maxSlip: 0
-  maxAngle: 0
-  oldAngle: 0
 --- !u!1 &1519281228
 GameObject:
   m_ObjectHideFlags: 0
@@ -1861,64 +1552,6 @@ MonoBehaviour:
   springLength: 0.5
   wheelSide: -1
   canDrive: 1
-  suspensionTravel: 0.2
-  damping: 5000
-  inertia: 2.2
-  grip: 1
-  brakeFrictionTorque: 4000
-  handbrakeFrictionTorque: 0
-  frictionTorque: 10
-  maxSteeringAngle: 28
-  massFraction: 0.25
-  a:
-  - 1
-  - -60
-  - 1688
-  - 4140
-  - 6.026
-  - 0
-  - -0.3589
-  - 1
-  - 0
-  - -0.006111
-  - -0.03244
-  - 0
-  - 0
-  - 0
-  - 0
-  b:
-  - 1
-  - -60
-  - 1588
-  - 0
-  - 229
-  - 0
-  - 0
-  - 0
-  - -10
-  - 0
-  - 0
-  driveTorque: 0
-  driveFrictionTorque: 0
-  brake: 0
-  handbrake: 0
-  steering: 0
-  drivetrainInertia: 0
-  suspensionForceInput: 0
-  angularVelocity: 0
-  slipRatio: 0
-  slipVelo: 0
-  compression: 0
-  fullCompressionSpringForce: 0
-  wheelVelo: {x: 0, y: 0, z: 0}
-  localVelo: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
-  rotation: 0
-  normalForce: 0
-  slipAngle: 0
-  maxSlip: 0
-  maxAngle: 0
-  oldAngle: 0
 --- !u!1 &1992069897
 GameObject:
   m_ObjectHideFlags: 0
@@ -2002,17 +1635,11 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
->>>>>>> Stashed changes
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 793588654}
   - {fileID: 508733530}
   - {fileID: 116876912}
-<<<<<<< Updated upstream
-  - {fileID: 397930073}
-=======
   - {fileID: 1258719234}
   - {fileID: 1387606458}
->>>>>>> Stashed changes
