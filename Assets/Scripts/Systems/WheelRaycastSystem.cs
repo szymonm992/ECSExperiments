@@ -18,7 +18,7 @@ namespace ECSExperiment.Wheels
         {
             state.Dependency.Complete();
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-            List<(int rigId, float3 force, float3 point)> impulsePoints = new();
+            List<(int rigId, float3 force, float3 point)> raycastImpulsePoints = new();
 
             foreach (var (wheelProperties, wheelHitData, wheelCastOriginLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRW<WheelHitData>, RefRO<LocalTransform>>())
             {
@@ -86,8 +86,7 @@ namespace ECSExperiment.Wheels
                     if (downForceLimit < impulseUp)
                     {
                         totalSuspensionForce = impulseUp * springDirection;
-                        //physicsWorld.ApplyImpulse(rigidbodyIndex, totalSuspensionForce, wheelHitData.ValueRO.WheelCenter);
-                        impulsePoints.Add(new(rigidbodyIndex, totalSuspensionForce, wheelHitData.ValueRO.WheelCenter));
+                        raycastImpulsePoints.Add(new(rigidbodyIndex, totalSuspensionForce, wheelHitData.ValueRO.WheelCenter));
                     }
                 }
                 else
@@ -95,18 +94,18 @@ namespace ECSExperiment.Wheels
                     wheelProperties.ValueRW.IsGrounded = false;
                 }
 
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
                 Color color = wheelProperties.ValueRO.IsGrounded ? Color.green : Color.red;
                 float3 localRightDirection = math.mul(wheelCastOriginGlobalTransform.Rotation,
                     new float3((int)wheelProperties.ValueRO.Side, 0, 0));
                 Debug.DrawRay(wheelHitData.ValueRO.WheelCenter, localRightDirection, color);
-#endif
+                #endif
             }
 
 
-            foreach (var chuj in impulsePoints)
+            foreach (var (rigidbodyId, force, point) in raycastImpulsePoints)
             {
-                physicsWorld.ApplyImpulse(chuj.rigId, chuj.force, chuj.point);
+                physicsWorld.ApplyImpulse(rigidbodyId, force, point);
             }
         }
     }

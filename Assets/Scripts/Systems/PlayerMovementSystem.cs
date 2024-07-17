@@ -64,7 +64,7 @@ public partial struct PlayerMovementSystem : ISystem
             wheelProperties.ValueRW.compression = Mathf.Clamp01(wheelProperties.ValueRW.compression);
             */
 
-        List<(int rigId, float3 force, float3 point)> impulsePoints = new();
+        List<(int rigId, float3 force, float3 point)> frictionImpulsePoints = new();
         foreach (var (wheelProperties, hitData, wheelLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalTransform>>())
         {
             var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
@@ -89,8 +89,7 @@ public partial struct PlayerMovementSystem : ISystem
 
             if (wheelProperties.ValueRO.IsGrounded)
             {
-                impulsePoints.Add(new(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter));
-                //physicsWorld.ApplyImpulse(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter);
+                frictionImpulsePoints.Add(new(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter));
             }
 
             float forwardVel = math.dot(localForwardDirection, tireVel);
@@ -99,19 +98,16 @@ public partial struct PlayerMovementSystem : ISystem
 
             if (wheelProperties.ValueRO.IsGrounded)
             {
-                impulsePoints.Add(new (rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter));
-                //physicsWorld.ApplyImpulse(rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter);
+                frictionImpulsePoints.Add(new (rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter));
             }
-
 
             Debug.DrawRay(hitData.ValueRO.HitPoint, localForwardDirection, Color.blue);
             Debug.DrawRay(hitData.ValueRO.HitPoint, localRightDirection, Color.red);
         }
 
-
-        foreach (var chuj in impulsePoints)
+        foreach (var (rigId, force, point) in frictionImpulsePoints)
         {
-            physicsWorld.ApplyImpulse(chuj.rigId, chuj.force, chuj.point);
+            physicsWorld.ApplyImpulse(rigId, force, point);
         }
     }
 }
