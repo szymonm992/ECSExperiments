@@ -11,14 +11,17 @@ using System.Collections.Generic;
 
 namespace ECSExperiment.Wheels
 {
+    [BurstCompile]
     [UpdateInGroup(typeof(PhysicsSimulationGroup), OrderFirst = true)]
     public partial struct WheelRaycastSystem : ISystem
     {
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             state.Dependency.Complete();
+
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-            List<(int rigId, float3 force, float3 point)> raycastImpulsePoints = new();
+            var raycastImpulsePoints = new List<(int rigId, float3 force, float3 point)>();
 
             foreach (var (wheelProperties, wheelHitData, wheelCastOriginLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRW<WheelHitData>, RefRO<LocalTransform>>())
             {
@@ -67,15 +70,14 @@ namespace ECSExperiment.Wheels
                     wheelHitData.ValueRW.Distance = (raycastDistance - wheelProperties.ValueRO.Radius);
                     wheelHitData.ValueRW.WheelCenter = rayStart - (springDirection * raycastDistance);
 
-
                     var velocityAtWheel = physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelHitData.ValueRO.WheelCenter);
                     var invertedWheelsCount = (1f / 4f);
                     var currentSpeedUp = math.dot(velocityAtWheel, springDirection);
 
-                    float3 lvA = currentSpeedUp * springDirection;
-                    float3 lvB = physicsWorld.GetLinearVelocity(result.RigidBodyIndex, wheelHitData.ValueRO.WheelCenter);
+                    float3 localVelocityA = currentSpeedUp * springDirection;
+                    float3 localVelocityB = physicsWorld.GetLinearVelocity(result.RigidBodyIndex, wheelHitData.ValueRO.WheelCenter);
                     float3 totalSuspensionForce = (wheelProperties.ValueRO.Spring * (result.Position - rayEnd))
-                        + (wheelProperties.ValueRO.Damper * (lvB - lvA)) * invertedWheelsCount;
+                        + (wheelProperties.ValueRO.Damper * (localVelocityB - localVelocityA)) * invertedWheelsCount;
 
                     Debug.DrawRay(wheelHitData.ValueRO.WheelCenter, math.up(), Color.yellow);
                     Debug.DrawRay(wheelHitData.ValueRO.WheelCenter, springDirection, Color.cyan);
@@ -101,7 +103,6 @@ namespace ECSExperiment.Wheels
                 Debug.DrawRay(wheelHitData.ValueRO.WheelCenter, localRightDirection, color);
                 #endif
             }
-
 
             foreach (var (rigidbodyId, force, point) in raycastImpulsePoints)
             {

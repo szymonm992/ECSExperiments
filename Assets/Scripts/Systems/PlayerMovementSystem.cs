@@ -18,6 +18,7 @@ public partial struct PlayerMovementSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         state.Dependency.Complete();
+
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
         /*foreach (var (wheelProperties, hitData, wheelTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalToWorld>>())
@@ -64,7 +65,8 @@ public partial struct PlayerMovementSystem : ISystem
             wheelProperties.ValueRW.compression = Mathf.Clamp01(wheelProperties.ValueRW.compression);
             */
 
-        List<(int rigId, float3 force, float3 point)> frictionImpulsePoints = new();
+        var frictionImpulsePoints = new List<(int rigId, float3 force, float3 point)>();
+
         foreach (var (wheelProperties, hitData, wheelLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalTransform>>())
         {
             var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
