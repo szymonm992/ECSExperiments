@@ -6,12 +6,13 @@ using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 using UnityEngine;
-using System.Collections.Generic;
 using ECSExperiment.Wheels;
+using Unity.Collections;
 
+[BurstCompile]
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
 [UpdateAfter(typeof(WheelCastSystem))]
-public partial struct PlayerMovementSystem : ISystem
+public partial struct VehicleMovementSystem : ISystem
 {
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
@@ -64,9 +65,9 @@ public partial struct PlayerMovementSystem : ISystem
             wheelProperties.ValueRW.compression = Mathf.Clamp01(wheelProperties.ValueRW.compression);
             */
 
-        var frictionImpulsePoints = new List<(int rigId, float3 force, float3 point)>();
+        var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-        foreach (var (wheelProperties, hitData, wheelLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalTransform>>())
+        foreach (var (wheelProperties, hitData, wheelLocalTransform) in SystemAPI.Query<RefRO<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalTransform>>())
         {
             var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
 
@@ -82,16 +83,11 @@ public partial struct PlayerMovementSystem : ISystem
 
             float3 localRightDirection = math.mul(wheelCastOriginGlobalTransform.Rotation, math.right());
             float3 localForwardDirection = math.forward(wheelCastOriginGlobalTransform.Rotation);
-            var tireVel = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
+            float3 tireVel = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
 
             float steeringVel = math.dot(localRightDirection, tireVel);
             float desiredSidewaysVelChange = -steeringVel * FRICTION_GRIP_FACTOR;
             float desiredSidewaysAccel = desiredSidewaysVelChange / SystemAPI.Time.DeltaTime;
-
-            if (wheelProperties.ValueRO.IsGrounded)
-            {
-                frictionImpulsePoints.Add(new(rigidbodyIndex, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter));
-            }
 
             float forwardVel = math.dot(localForwardDirection, tireVel);
             float desiredForwardVelChange = -forwardVel * FRICTION_GRIP_FACTOR;
@@ -99,18 +95,28 @@ public partial struct PlayerMovementSystem : ISystem
 
             if (wheelProperties.ValueRO.IsGrounded)
             {
-                frictionImpulsePoints.Add(new (rigidbodyIndex, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter));
+                RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter);
+                RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter);
             }
 
             Debug.DrawRay(hitData.ValueRO.HitPoint, localForwardDirection, Color.blue);
-            Debug.DrawRay(hitData.ValueRO.HitPoint, localRightDirection, Color.red);
         }
 
-        foreach (var (rigId, force, point) in frictionImpulsePoints)
-        {
-            physicsWorld.ApplyImpulse(rigId, force, point);
-        }
+        ecb.Playback(state.EntityManager);
+        ecb.Dispose();
     }
+
+    [BurstCompile]
+    private void RequestForceAccumulation(ref SystemState state, Entity bufferEntity, float3 appliedForce, float3 appliedForcePoint)
+    {
+        var vehicleForceAccumulationBuffer = SystemAPI.GetBuffer<ForceAccumulationBufferElement>(bufferEntity);
+        vehicleForceAccumulationBuffer.Add(new()
+        {
+            force = appliedForce,
+            point = appliedForcePoint,
+        });
+    }
+
 }
 
 

@@ -1,3 +1,4 @@
+using ECSExperiment.Wheels;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,8 +24,8 @@ public class VehicleMono : MonoBehaviour
             var entity = GetEntity(authoring.gameObject, TransformUsageFlags.Dynamic);
             Debug.Assert(authoring.Wheels != null && authoring.Wheels.Any(), "Wheels list cannot be empty");
 
-          
             AddComponent(entity, new InputsData { });
+            AddBuffer<ForceAccumulationBufferElement>(entity);
 
             var vehicleBakingData = new VehicleBakingData()
             {
@@ -85,7 +86,7 @@ public partial class VehicleBaker : SystemBase
                     VehicleEntity = entity,
                     WheelsAmount = vehicleAuthoring.Wheels.Count(),
                 };
-                
+
                 foreach (var wheelEntity in vehicleBakingData.Wheels)
                 {
                     var wheelBakingData = EntityManager.GetComponentData<WheelBakingData>(wheelEntity);
@@ -96,5 +97,6 @@ public partial class VehicleBaker : SystemBase
                 EntityManager.AddComponentData(entity, vehicleProperties);
 
             }).Run();
+
     }
 }

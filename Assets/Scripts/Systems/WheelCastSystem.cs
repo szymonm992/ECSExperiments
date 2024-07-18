@@ -7,6 +7,7 @@ using Unity.Physics.Systems;
 using Unity.Transforms;
 using UnityEngine;
 using System.Collections.Generic;
+using Unity.Collections;
 
 namespace ECSExperiment.Wheels
 {
@@ -20,7 +21,7 @@ namespace ECSExperiment.Wheels
             state.Dependency.Complete();
 
             var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-            var raycastImpulsePoints = new List<(int rigId, float3 force, float3 point)>();
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
             foreach (var (wheelProperties, wheelHitData, wheelLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRW<WheelHitData>, RefRO<LocalTransform>>())
             {
@@ -50,7 +51,6 @@ namespace ECSExperiment.Wheels
                     UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.Material.Friction);
 
                     var vehicleProperties = SystemAPI.GetComponent<VehicleProperties>(wheelProperties.ValueRO.VehicleEntity);
-                    
                     var wheelsCountFraction = 1f / vehicleProperties.WheelsAmount;
                     var currentSpeedUp = math.dot(velocityAtWheel, wheelLocalUp);
                     
@@ -65,7 +65,13 @@ namespace ECSExperiment.Wheels
                     if (downForceLimit < impulseUp)
                     {
                         totalSuspensionForce = impulseUp * wheelLocalUp;
-                        raycastImpulsePoints.Add(new (rigidbodyIndex, totalSuspensionForce, wheelCenter));
+
+                        var vehicleForceAccumulationBuffer = SystemAPI.GetBuffer<ForceAccumulationBufferElement>(wheelProperties.ValueRO.VehicleEntity);
+                        vehicleForceAccumulationBuffer.Add(new()
+                        {
+                            point = wheelCenter,
+                            force = totalSuspensionForce
+                        });
                     }
                 }
                 else
@@ -82,10 +88,8 @@ namespace ECSExperiment.Wheels
                 #endif
             }
 
-            foreach (var (rigidbodyId, force, point) in raycastImpulsePoints)
-            {
-                physicsWorld.ApplyImpulse(rigidbodyId, force, point);
-            }
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
         }
 
         [BurstCompile]

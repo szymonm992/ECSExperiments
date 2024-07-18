@@ -1,18 +1,51 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
+using Unity.Burst;
+using Unity.Entities;
+using Unity.Physics;
+using Unity.Physics.Extensions;
+using Unity.Physics.Systems;
+using Unity.Collections;
 
-public class VehicleForceApplySystem : MonoBehaviour
+namespace ECSExperiment.Wheels
 {
-    // Start is called before the first frame update
-    void Start()
+    [BurstCompile]
+    [UpdateInGroup(typeof(PhysicsSimulationGroup), OrderFirst = true)]
+    [UpdateAfter(typeof(VehicleMovementSystem))]
+    public partial struct VehicleForceApplySystem : ISystem
     {
-        
-    }
+        [BurstCompile]
+        public void OnUpdate(ref SystemState state)
+        {
+            state.Dependency.Complete();
+            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+            var ecb = new EntityCommandBuffer(Allocator.TempJob);
+
+            foreach (var (forceAccumulationBuffer, vehicleEntity) in SystemAPI.Query<DynamicBuffer<ForceAccumulationBufferElement>>().WithEntityAccess())
+            {
+                var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(vehicleEntity);
+
+                if (!IsRigidbodyIndexValid(rigidbodyIndex, physicsWorld))
+                {
+                    return;
+                }
+
+                for (int i = 0; i < forceAccumulationBuffer.Length; i++)
+                {
+                    physicsWorld.ApplyImpulse(rigidbodyIndex, forceAccumulationBuffer[i].force, forceAccumulationBuffer[i].point);
+                }
+
+                forceAccumulationBuffer.Clear();
+            }
+
+            ecb.Playback(state.EntityManager);
+            ecb.Dispose();
+        }
+
+        [BurstCompile]
+        private bool IsRigidbodyIndexValid(int rigidbodyIndex, PhysicsWorld physicsWorld)
+        {
+            return rigidbodyIndex > -1 && rigidbodyIndex < physicsWorld.NumDynamicBodies;
+        }
     }
 }
