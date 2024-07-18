@@ -1,5 +1,4 @@
 using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -11,7 +10,7 @@ using System.Collections.Generic;
 using ECSExperiment.Wheels;
 
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
-[UpdateAfter(typeof(WheelRaycastSystem))]
+[UpdateAfter(typeof(WheelCastSystem))]
 public partial struct PlayerMovementSystem : ISystem
 {
     [BurstCompile]
