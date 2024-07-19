@@ -522,7 +522,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 750
+  spring: 700
   damper: 200
   mass: 20
   radius: 0.46
@@ -530,6 +530,34 @@ MonoBehaviour:
   springLength: 0.5
   wheelSide: 1
   canDrive: 1
+  inertia: 2.2
+  grip: 1
+  brakeFrictionTorque: 8000
+  handbrakeFrictionTorque: 16000
+  frictionTorque: 8000
+  maxSteeringAngle: 28
+  massFraction: 0.25
+  driveTorque: 0
+  driveFrictionTorque: 0
+  brake: 0
+  handbrake: 0
+  steering: 0
+  drivetrainInertia: 0
+  suspensionForceInput: 0
+  angularVelocity: 0
+  slipRatio: 0
+  slipVelo: 0
+  compression: 0
+  fullCompressionSpringForce: 0
+  wheelVelo: {x: 0, y: 0, z: 0}
+  localVelo: {x: 0, y: 0, z: 0}
+  groundNormal: {x: 0, y: 0, z: 0}
+  rotation: 0
+  normalForce: 0
+  slipAngle: 0
+  maxSlip: 0
+  maxAngle: 0
+  oldAngle: 0
 --- !u!1 &840564536
 GameObject:
   m_ObjectHideFlags: 0
@@ -812,8 +840,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MotionType: 0
   m_Smoothing: 0
-  m_Mass: 2000
-  m_LinearDamping: 0.01
+  m_Mass: 1170
+  m_LinearDamping: 0.3
   m_AngularDamping: 0.05
   m_InitialLinearVelocity:
     x: 0
@@ -1076,7 +1104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 750
+  spring: 700
   damper: 200
   mass: 20
   radius: 0.46
@@ -1084,6 +1112,34 @@ MonoBehaviour:
   springLength: 0.5
   wheelSide: -1
   canDrive: 1
+  inertia: 2.2
+  grip: 1
+  brakeFrictionTorque: 8000
+  handbrakeFrictionTorque: 16000
+  frictionTorque: 8000
+  maxSteeringAngle: 28
+  massFraction: 0.25
+  driveTorque: 0
+  driveFrictionTorque: 0
+  brake: 0
+  handbrake: 0
+  steering: 0
+  drivetrainInertia: 0
+  suspensionForceInput: 0
+  angularVelocity: 0
+  slipRatio: 0
+  slipVelo: 0
+  compression: 0
+  fullCompressionSpringForce: 0
+  wheelVelo: {x: 0, y: 0, z: 0}
+  localVelo: {x: 0, y: 0, z: 0}
+  groundNormal: {x: 0, y: 0, z: 0}
+  rotation: 0
+  normalForce: 0
+  slipAngle: 0
+  maxSlip: 0
+  maxAngle: 0
+  oldAngle: 0
 --- !u!1 &1387606453
 GameObject:
   m_ObjectHideFlags: 0
@@ -1408,7 +1464,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 750
+  spring: 700
   damper: 200
   mass: 20
   radius: 0.46
@@ -1416,6 +1472,34 @@ MonoBehaviour:
   springLength: 0.5
   wheelSide: 1
   canDrive: 1
+  inertia: 2.2
+  grip: 1
+  brakeFrictionTorque: 8000
+  handbrakeFrictionTorque: 16000
+  frictionTorque: 8000
+  maxSteeringAngle: 28
+  massFraction: 0.25
+  driveTorque: 0
+  driveFrictionTorque: 0
+  brake: 0
+  handbrake: 0
+  steering: 0
+  drivetrainInertia: 0
+  suspensionForceInput: 0
+  angularVelocity: 0
+  slipRatio: 0
+  slipVelo: 0
+  compression: 0
+  fullCompressionSpringForce: 0
+  wheelVelo: {x: 0, y: 0, z: 0}
+  localVelo: {x: 0, y: 0, z: 0}
+  groundNormal: {x: 0, y: 0, z: 0}
+  rotation: 0
+  normalForce: 0
+  slipAngle: 0
+  maxSlip: 0
+  maxAngle: 0
+  oldAngle: 0
 --- !u!1 &1519281228
 GameObject:
   m_ObjectHideFlags: 0
@@ -1544,7 +1628,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 750
+  spring: 700
   damper: 200
   mass: 20
   radius: 0.46
@@ -1552,6 +1636,34 @@ MonoBehaviour:
   springLength: 0.5
   wheelSide: -1
   canDrive: 1
+  inertia: 2.2
+  grip: 1
+  brakeFrictionTorque: 8000
+  handbrakeFrictionTorque: 16000
+  frictionTorque: 8000
+  maxSteeringAngle: 28
+  massFraction: 0.25
+  driveTorque: 0
+  driveFrictionTorque: 0
+  brake: 0
+  handbrake: 0
+  steering: 0
+  drivetrainInertia: 0
+  suspensionForceInput: 0
+  angularVelocity: 0
+  slipRatio: 0
+  slipVelo: 0
+  compression: 0
+  fullCompressionSpringForce: 0
+  wheelVelo: {x: 0, y: 0, z: 0}
+  localVelo: {x: 0, y: 0, z: 0}
+  groundNormal: {x: 0, y: 0, z: 0}
+  rotation: 0
+  normalForce: 0
+  slipAngle: 0
+  maxSlip: 0
+  maxAngle: 0
+  oldAngle: 0
 --- !u!1 &1992069897
 GameObject:
   m_ObjectHideFlags: 0

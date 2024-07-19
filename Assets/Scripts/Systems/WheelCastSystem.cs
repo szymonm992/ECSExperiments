@@ -39,7 +39,7 @@ namespace ECSExperiment.Wheels
                 var castInput = CreateWheelCast(wheelProperties.ValueRO, wheelGlobalTransform.Position, wheelLocalUp);
                 var wheelCenter = castInput.Start - (wheelLocalUp * wheelProperties.ValueRO.SpringLength);
 
-                UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), 0f);
+                UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), 0f, 0f);
 
                 if (physicsWorld.CollisionWorld.CastRay(castInput, out var result))
                 {
@@ -48,7 +48,7 @@ namespace ECSExperiment.Wheels
 
                     wheelProperties.ValueRW.IsGrounded = true;
                     wheelCenter = castInput.Start - (wheelLocalUp * raycastDistance);
-                    UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.Material.Friction);
+                    UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.Material.Friction, raycastDistance);
 
                     var vehicleProperties = SystemAPI.GetComponent<VehicleProperties>(wheelProperties.ValueRO.VehicleEntity);
                     var wheelsCountFraction = 1f / vehicleProperties.WheelsAmount;
@@ -124,13 +124,14 @@ namespace ECSExperiment.Wheels
         }
 
         [BurstCompile]
-        private void UpdateWheelHitData(ref WheelHitData hitData, bool hit, float3 hitPoint, float3 wheelCenter, float3 velocityAtContactPoint, float surfaceFriction)
+        private void UpdateWheelHitData(ref WheelHitData hitData, bool hit, float3 hitPoint, float3 wheelCenter, float3 velocityAtContactPoint, float surfaceFriction, float hitDistance)
         {
             hitData.HasHit = hit;
             hitData.HitPoint = hitPoint;
             hitData.WheelCenter = wheelCenter;
             hitData.SurfaceFriction = surfaceFriction;
             hitData.VelocityAtContactPoint = velocityAtContactPoint;
+            hitData.Distance = hitDistance;
         }
 
         [BurstCompile]

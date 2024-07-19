@@ -11,7 +11,7 @@ namespace ECSExperiment.Wheels
     [BurstCompile]
     [UpdateInGroup(typeof(PhysicsSimulationGroup), OrderFirst = true)]
     [UpdateAfter(typeof(VehicleMovementSystem))]
-    public partial struct VehicleForceApplySystem : ISystem
+    public partial struct VehicleForcesApplySystem : ISystem
     {
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
