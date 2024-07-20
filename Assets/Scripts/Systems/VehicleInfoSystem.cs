@@ -5,34 +5,37 @@ using Unity.Physics;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 
-[UpdateInGroup(typeof(PhysicsSimulationGroup))]
-public partial struct VehicleInfoSystem : ISystem
+namespace ECSExperiment.Wheels
 {
-    [BurstCompile]
-    public void OnUpdate(ref SystemState state)
+    [UpdateInGroup(typeof(PhysicsSimulationGroup))]
+    public partial struct VehicleInfoSystem : ISystem
     {
-        var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-        var vehicleDriveJob = new CalculateVehicleInfoJob
+        [BurstCompile]
+        public void OnUpdate(ref SystemState state)
         {
-            PhysicsWorld = physicsWorld,
-        };
+            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+            var vehicleDriveJob = new CalculateVehicleInfoJob
+            {
+                PhysicsWorld = physicsWorld,
+            };
 
-        state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
-    }
+            state.Dependency = vehicleDriveJob.Schedule(state.Dependency);
+        }
 
-    [BurstCompile]
-    [WithAll(typeof(Simulate))]
-    public partial struct CalculateVehicleInfoJob : IJobEntity
-    {
-        public PhysicsWorld PhysicsWorld;
-
-        private void Execute(ref VehicleProperties vehicleProperties, in InputsData inputsData)
+        [BurstCompile]
+        [WithAll(typeof(Simulate))]
+        public partial struct CalculateVehicleInfoJob : IJobEntity
         {
-            var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(vehicleProperties.VehicleEntity);
-            var currentVelocity = PhysicsWorld.GetLinearVelocity(rigidbodyIndex);
-            var currentSpeed = math.length(currentVelocity) * 4f;
+            public PhysicsWorld PhysicsWorld;
 
-            vehicleProperties.CurrentSpeed = currentSpeed;
+            private void Execute(ref VehicleProperties vehicleProperties, in InputsData inputsData)
+            {
+                var rigidbodyIndex = PhysicsWorld.GetRigidBodyIndex(vehicleProperties.VehicleEntity);
+                var currentVelocity = PhysicsWorld.GetLinearVelocity(rigidbodyIndex);
+                var currentSpeed = math.length(currentVelocity) * 4f;
+
+                vehicleProperties.CurrentSpeed = currentSpeed;
+            }
         }
     }
 }

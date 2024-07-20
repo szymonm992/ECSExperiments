@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
@@ -6,8 +7,6 @@ using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 using UnityEngine;
-using System.Collections.Generic;
-using Unity.Collections;
 
 namespace ECSExperiment.Wheels
 {
@@ -32,52 +31,48 @@ namespace ECSExperiment.Wheels
                     return;
                 }
 
-                var wheelGlobalTransform = WheelTransformRelativeToRigidbody(wheelLocalTransform.ValueRO, physicsWorld, rigidbodyIndex);
+                var wheelGlobalTransform = GetWorldTransformRelativeToRigidbody(wheelLocalTransform.ValueRO, physicsWorld, rigidbodyIndex);
                 var wheelLocalUp = math.mul(wheelGlobalTransform.Rotation, math.up());
                 var wheelLocalRight = math.mul(wheelGlobalTransform.Rotation, math.right());
 
                 var castInput = CreateWheelCast(wheelProperties.ValueRO, wheelGlobalTransform.Position, wheelLocalUp);
                 var wheelCenter = castInput.Start - (wheelLocalUp * wheelProperties.ValueRO.SpringLength);
 
-                UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), 0f);
+                UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), math.up(), 0f);
 
                 if (physicsWorld.CollisionWorld.CastRay(castInput, out var result))
                 {
                     var raycastDistance = math.distance(result.Position, castInput.Start);
+                    var rayMaxDistance = math.distance(castInput.Start, castInput.End);
+
                     var velocityAtWheel = physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter);
+                    var compression = 1f - (raycastDistance / rayMaxDistance);
 
+                    wheelProperties.ValueRW.Compression = compression;
                     wheelProperties.ValueRW.IsGrounded = true;
-                    wheelCenter = castInput.Start - (wheelLocalUp * raycastDistance);
-                    UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.Material.Friction);
 
-                    var vehicleProperties = SystemAPI.GetComponent<VehicleProperties>(wheelProperties.ValueRO.VehicleEntity);
-                    var wheelsCountFraction = 1f / vehicleProperties.WheelsAmount;
+                    wheelCenter = castInput.Start - (wheelLocalUp * (raycastDistance - wheelProperties.ValueRO.Radius));
+                    UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.SurfaceNormal, result.Material.Friction);
+
                     var currentSpeedUp = math.dot(velocityAtWheel, wheelLocalUp);
                     
-                    float3 localVelocityA = currentSpeedUp * wheelLocalUp;
-                    float3 localVelocityB = physicsWorld.GetLinearVelocity(result.RigidBodyIndex, wheelCenter);
+                    float3 localVelocityOfVehicle = currentSpeedUp * wheelLocalUp;
+                    float3 localVelocityOfHitBody = physicsWorld.GetLinearVelocity(result.RigidBodyIndex, wheelCenter);
                     float3 totalSuspensionForce = (wheelProperties.ValueRO.Spring * (result.Position - castInput.End))
-                        + (wheelProperties.ValueRO.Damper * (localVelocityB - localVelocityA)) * wheelsCountFraction;
+                        + (wheelProperties.ValueRO.Damper * (localVelocityOfHitBody - localVelocityOfVehicle)) * wheelProperties.ValueRO.WheelsAmountFraction;
 
-                    float impulseUp = math.dot(totalSuspensionForce, wheelLocalUp);
-                    float downForceLimit = -0.25f;
+                    float suspensionForce = math.dot(totalSuspensionForce, wheelLocalUp);
+                    totalSuspensionForce = suspensionForce * wheelLocalUp;
 
-                    if (downForceLimit < impulseUp)
-                    {
-                        totalSuspensionForce = impulseUp * wheelLocalUp;
-
-                        var vehicleForceAccumulationBuffer = SystemAPI.GetBuffer<ForceAccumulationBufferElement>(wheelProperties.ValueRO.VehicleEntity);
-                        vehicleForceAccumulationBuffer.Add(new()
-                        {
-                            point = wheelCenter,
-                            force = totalSuspensionForce
-                        });
-                    }
+                    RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, totalSuspensionForce, wheelCenter);                 
                 }
                 else
                 {
                     wheelProperties.ValueRW.IsGrounded = false;
+                    wheelProperties.ValueRW.Compression = 0f;
                 }
+
+                RepositionVisualWheel(ref state, ecb, wheelGlobalTransform, wheelProperties.ValueRO.WheelVisualObjectEntity, wheelCenter);
 
                 #if UNITY_EDITOR
                 float3 localRightDirection = math.mul(wheelGlobalTransform.Rotation,
@@ -107,7 +102,7 @@ namespace ECSExperiment.Wheels
         }
 
         [BurstCompile]
-        private LocalTransform WheelTransformRelativeToRigidbody(LocalTransform wheelLocalTransform, PhysicsWorld physicsWorld, int rigidbodyIndex)
+        private LocalTransform GetWorldTransformRelativeToRigidbody(LocalTransform wheelLocalTransform, PhysicsWorld physicsWorld, int rigidbodyIndex)
         {
             if (!IsRigidbodyIndexValid(rigidbodyIndex, physicsWorld))
             {
@@ -124,19 +119,59 @@ namespace ECSExperiment.Wheels
         }
 
         [BurstCompile]
-        private void UpdateWheelHitData(ref WheelHitData hitData, bool hit, float3 hitPoint, float3 wheelCenter, float3 velocityAtContactPoint, float surfaceFriction)
+        private void UpdateWheelHitData(ref WheelHitData hitData, bool hit, float3 hitPoint, float3 wheelCenter, float3 velocityAtContactPoint, float3 normal, float surfaceFriction)
         {
             hitData.HasHit = hit;
             hitData.HitPoint = hitPoint;
             hitData.WheelCenter = wheelCenter;
             hitData.SurfaceFriction = surfaceFriction;
             hitData.VelocityAtContactPoint = velocityAtContactPoint;
+            hitData.HitNormal = normal;
         }
 
         [BurstCompile]
         private bool IsRigidbodyIndexValid(int rigidbodyIndex, PhysicsWorld physicsWorld)
         {
             return rigidbodyIndex > -1 && rigidbodyIndex < physicsWorld.NumDynamicBodies;
+        }
+
+        [BurstCompile]
+        private void RequestForceAccumulation(ref SystemState _, Entity bufferEntity, float3 appliedForce, float3 appliedForcePoint)
+        {
+            var vehicleForceAccumulationBuffer = SystemAPI.GetBuffer<ForceAccumulationBufferElement>(bufferEntity);
+            vehicleForceAccumulationBuffer.Add(new()
+            {
+                force = appliedForce,
+                point = appliedForcePoint,
+            });
+        }
+
+        [BurstCompile]
+        private void RepositionVisualWheel(ref SystemState state, EntityCommandBuffer ecb,LocalTransform parentTransform, Entity visualWheelEntity, float3 wheelCenter)
+        {
+            // Get the local transform of the visual wheel relative to the parent
+            var wheelLocalTransform = GetLocalTransformRelativeToParent(parentTransform, wheelCenter);
+
+            // Set the local transform for the wheel visual entity
+            ecb.SetComponent(visualWheelEntity, wheelLocalTransform);
+        }
+
+        [BurstCompile]
+        private LocalTransform GetLocalTransformRelativeToParent(LocalTransform parentTransform, float3 worldPosition)
+        {
+            // Convert the world position to local position relative to the parent's transform
+            float4x4 parentMatrix = parentTransform.ToMatrix();
+            float4x4 inverseParentMatrix = math.inverse(parentMatrix);
+
+            float3 localPosition = math.mul(inverseParentMatrix, new float4(worldPosition, 1f)).xyz;
+            quaternion parentRotation = parentTransform.Rotation;
+
+            return new LocalTransform
+            {
+                Position = localPosition,
+                Rotation = parentRotation,
+                Scale = 1f
+            };
         }
     }
 }

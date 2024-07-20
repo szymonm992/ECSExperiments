@@ -1,15 +1,17 @@
-using Unity.Collections;
 using Unity.Entities;
 
-public struct VehicleProperties : IComponentData
+namespace ECSExperiment.Wheels
 {
-    public Entity VehicleEntity;
+    public struct VehicleProperties : IComponentData
+    {
+        public Entity VehicleEntity;
 
-    public int WheelsAmount;
+        public int WheelsAmount;
 
-    public float VehicleMaximumForwardSpeed;
-    public float VehicleMaximumBackwardSpeed;
+        public float VehicleMaximumForwardSpeed;
+        public float VehicleMaximumBackwardSpeed;
 
-    public float CurrentSpeed;
-    public bool IsGrounded;
+        public float CurrentSpeed;
+        public bool IsGrounded;
+    }
 }

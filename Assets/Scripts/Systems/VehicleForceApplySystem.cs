@@ -1,4 +1,3 @@
-using System.Linq;
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Physics;
@@ -10,7 +9,7 @@ namespace ECSExperiment.Wheels
 {
     [BurstCompile]
     [UpdateInGroup(typeof(PhysicsSimulationGroup), OrderFirst = true)]
-    [UpdateAfter(typeof(VehicleMovementSystem))]
+    [UpdateAfter(typeof(VehicleFrictionSystem))]
     public partial struct VehicleForceApplySystem : ISystem
     {
         [BurstCompile]
