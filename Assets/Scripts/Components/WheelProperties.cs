@@ -16,32 +16,29 @@ public struct WheelProperties : IComponentData
     public WheelSide Side;
 
     public float Compression;
-    public float3 WheelVelocity;
-    public float3 LocalVelocity;
-    public float3 roadForce;
-    public quaternion inverseLocalRotation;
-    public quaternion localRotation;
-    public float angularVelocity;
-    public float slipRatio;
-    public float slipVelo;
-    public float slipAngle;
-
     public float Inertia;
     public float DriveTorque;
-    public float driveFrictionTorque;
-    public float brake;
-    public float handbrake;
-    public float steering;
-    public float maxSteeringAngle;
-    public float drivetrainInertia;
-    public float fullCompressionSpringForce;
-
-    public float grip;
-    public float brakeFrictionTorque;
-    public float handbrakeFrictionTorque;
-    public float frictionTorque;
-
-    public float maxSlip;
-    public float maxAngle;
-    public float oldAngle;
+    public float AngularVelocity;
+    public float SlipRatio;
+    public float SlipVelocity;
+    public float SlipAngle;
+    public float DriveFrictionTorque;
+    public float Brake;
+    public float Handbrake;
+    public float Steering;
+    public float MaxSteeringAngle;
+    public float DrivetrainInertia;
+    public float FullCompressionSpringForce;
+    public float Grip;
+    public float BrakeFrictionTorque;
+    public float HandbrakeFrictionTorque;
+    public float FrictionTorque;
+    public float MaxSlip;
+    public float MaxAngle;
+    public float OldAngle;
+    public float3 WheelVelocity;
+    public float3 LocalVelocity;
+    public float3 RoadForce;
+    public quaternion InverseLocalRotation;
+    public quaternion LocalRotation;
 }

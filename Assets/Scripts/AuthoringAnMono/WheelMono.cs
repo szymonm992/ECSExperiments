@@ -11,6 +11,13 @@ public class WheelMono : MonoBehaviour
     public float Radius => radius;
     public float Thickness => thickness;
     public float SpringLength => springLength;
+    public float Inertia => inertia;
+    public float Grip => grip; 
+    public float BrakeFrictionTorque => brakeFrictionTorque;
+    public float HandbrakeFrictionTorque => handbrakeFrictionTorque;
+    public float FrictionTorque => frictionTorque;
+    public float MaxSteeringAngle => maxSteeringAngle;
+
     public WheelSide WheelSide => wheelSide;
     public bool CanDrive => canDrive;
 
@@ -22,13 +29,13 @@ public class WheelMono : MonoBehaviour
     [SerializeField] private float springLength;
     [SerializeField] private WheelSide wheelSide;
     [SerializeField] private bool canDrive;
+    [SerializeField] private float inertia = 2.2f;
+    [SerializeField] private float grip = 1.0f;
+    [SerializeField] private float brakeFrictionTorque = 4000;
+    [SerializeField] private float handbrakeFrictionTorque = 0;
+    [SerializeField] private float frictionTorque = 10;
+    [SerializeField] private float maxSteeringAngle = 28f;
 
-    public float inertia = 2.2f;
-    public float grip = 1.0f;
-    public float brakeFrictionTorque = 4000;
-    public float handbrakeFrictionTorque = 0;
-    public float frictionTorque = 10;
-    public float maxSteeringAngle = 28f;
     public float driveTorque = 0;
     public float driveFrictionTorque = 0;
     public float brake = 0;
@@ -43,7 +50,6 @@ public class WheelMono : MonoBehaviour
     public float fullCompressionSpringForce;
     public Vector3 wheelVelo;
     public Vector3 localVelo;
-    public Vector3 groundNormal;
     public float rotation;
     public float normalForce;
     public float slipAngle;
@@ -105,29 +111,30 @@ public partial class WheelBaker : SystemBase
                     Side = wheelAuthoring.WheelSide,
                     CanDrive = wheelAuthoring.CanDrive,
 
-                    slipAngle = wheelAuthoring.slipAngle,
-                    slipRatio = wheelAuthoring.slipRatio,
-                    slipVelo = wheelAuthoring.slipVelo,
-                    steering = wheelAuthoring.steering,
-                    driveFrictionTorque = wheelAuthoring.driveFrictionTorque,
+                    Inertia = wheelAuthoring.Inertia,
+                    Grip = wheelAuthoring.Grip,
+                    BrakeFrictionTorque = wheelAuthoring.BrakeFrictionTorque,
+                    FrictionTorque = wheelAuthoring.FrictionTorque,
+                    HandbrakeFrictionTorque = wheelAuthoring.HandbrakeFrictionTorque,
+                    MaxSteeringAngle = wheelAuthoring.MaxSteeringAngle,
+
+                    SlipAngle = wheelAuthoring.slipAngle,
+                    SlipRatio = wheelAuthoring.slipRatio,
+                    SlipVelocity = wheelAuthoring.slipVelo,
+                    Steering = wheelAuthoring.steering,
+                    DriveFrictionTorque = wheelAuthoring.driveFrictionTorque,
                     DriveTorque = wheelAuthoring.driveTorque,
-                    drivetrainInertia = wheelAuthoring.drivetrainInertia,
-                    angularVelocity = wheelAuthoring.angularVelocity,
-                    brake = wheelAuthoring.brake,
+                    DrivetrainInertia = wheelAuthoring.drivetrainInertia,
+                    AngularVelocity = wheelAuthoring.angularVelocity,
+                    Brake = wheelAuthoring.brake,
                     Compression = wheelAuthoring.compression,
-                    fullCompressionSpringForce = wheelAuthoring.fullCompressionSpringForce,
-                    brakeFrictionTorque = wheelAuthoring.brakeFrictionTorque,
-                    frictionTorque = wheelAuthoring.frictionTorque,
-                    handbrakeFrictionTorque = wheelAuthoring.handbrakeFrictionTorque,
-                    maxSlip = wheelAuthoring.maxSlip,
-                    maxSteeringAngle = wheelAuthoring.maxSteeringAngle,
-                    grip = wheelAuthoring.grip,
-                    handbrake = wheelAuthoring.handbrake,
-                    Inertia = wheelAuthoring.inertia,
+                    FullCompressionSpringForce = wheelAuthoring.fullCompressionSpringForce,
+                    MaxSlip = wheelAuthoring.maxSlip,
+                    Handbrake = wheelAuthoring.handbrake,
                     LocalVelocity = wheelAuthoring.localVelo,
-                    maxAngle = wheelAuthoring.maxAngle,
+                    MaxAngle = wheelAuthoring.maxAngle,
                     WheelVelocity = wheelAuthoring.wheelVelo,
-                    oldAngle = wheelAuthoring.oldAngle,
+                    OldAngle = wheelAuthoring.oldAngle,
                 };
 
                 EntityManager.AddComponentData(wheelEntity, wheelProperties);

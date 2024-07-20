@@ -34,7 +34,7 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
                 }
                 else
                 {
-                    wheelProperties.ValueRW.maxSlip = slip - stepsize;
+                    wheelProperties.ValueRW.MaxSlip = slip - stepsize;
                     break;
                 }
             }
@@ -51,14 +51,14 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
                 }
                 else
                 {
-                    wheelProperties.ValueRW.maxAngle = slipangle - stepsize;
+                    wheelProperties.ValueRW.MaxAngle = slipangle - stepsize;
                     break;
                 }
             }
 
             var vehicleProperties = SystemAPI.GetComponent<VehicleProperties>(wheelProperties.ValueRO.VehicleEntity);
             var wheelMassFraction = 1f / vehicleProperties.WheelsAmount;
-            wheelProperties.ValueRW.fullCompressionSpringForce = wheelMassFraction * 2.0f * -Physics.gravity.y;
+            wheelProperties.ValueRW.FullCompressionSpringForce = wheelMassFraction * 2.0f * -Physics.gravity.y;
         }
     }
 
@@ -79,84 +79,43 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
 
                 wheelProperties.ValueRW.Compression = 1.0f - ((hitData.ValueRO.Distance - wheelProperties.ValueRO.Radius) / wheelProperties.ValueRO.SpringLength);
                 wheelProperties.ValueRW.WheelVelocity = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
-                wheelProperties.ValueRW.LocalVelocity = math.mul(wheelProperties.ValueRO.inverseLocalRotation, wheelProperties.ValueRW.WheelVelocity);
+                wheelProperties.ValueRW.LocalVelocity = math.mul(wheelProperties.ValueRO.InverseLocalRotation, wheelProperties.ValueRW.WheelVelocity);
 
-                float normalForce = wheelProperties.ValueRW.Compression * wheelProperties.ValueRW.fullCompressionSpringForce;
-                wheelProperties.ValueRW.roadForce = RoadForce(ref state, wheelProperties, hitData, normalForce, wheelGlobalTransform);
+                float normalForce = wheelProperties.ValueRW.Compression * wheelProperties.ValueRW.FullCompressionSpringForce;
+                wheelProperties.ValueRW.RoadForce = RoadForce(ref state, wheelProperties, hitData, normalForce, wheelGlobalTransform);
 
-                RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, wheelProperties.ValueRW.roadForce, hitData.ValueRO.WheelCenter);
+                RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, wheelProperties.ValueRW.RoadForce, hitData.ValueRO.WheelCenter);
                 //physicsWorld.ApplyImpulse(rigidbodyIndex, wheelProperties.ValueRW.roadForce, hitData.ValueRO.WheelCenter);
             }
             else
             {
                 wheelProperties.ValueRW.Compression = 0.0f;
-                wheelProperties.ValueRW.roadForce = float3.zero;
+                wheelProperties.ValueRW.RoadForce = float3.zero;
 
-                float totalInertia = wheelProperties.ValueRO.Inertia + wheelProperties.ValueRO.drivetrainInertia;
+                float totalInertia = wheelProperties.ValueRO.Inertia + wheelProperties.ValueRO.DrivetrainInertia;
                 float driveAngularDelta = wheelProperties.ValueRO.DriveTorque * SystemAPI.Time.DeltaTime / totalInertia;
-                float totalFrictionTorque = wheelProperties.ValueRO.brakeFrictionTorque * wheelProperties.ValueRO.brake +
-                    wheelProperties.ValueRO.handbrakeFrictionTorque * wheelProperties.ValueRO.handbrake + wheelProperties.ValueRO.frictionTorque + wheelProperties.ValueRO.driveFrictionTorque;
+                float totalFrictionTorque = wheelProperties.ValueRO.BrakeFrictionTorque * wheelProperties.ValueRO.Brake +
+                    wheelProperties.ValueRO.HandbrakeFrictionTorque * wheelProperties.ValueRO.Handbrake + wheelProperties.ValueRO.FrictionTorque + wheelProperties.ValueRO.DriveFrictionTorque;
                 float frictionAngularDelta = totalFrictionTorque * SystemAPI.Time.DeltaTime / totalInertia;
 
-                wheelProperties.ValueRW.angularVelocity += driveAngularDelta;
+                wheelProperties.ValueRW.AngularVelocity += driveAngularDelta;
 
-                if (math.abs(wheelProperties.ValueRW.angularVelocity) > frictionAngularDelta)
+                if (math.abs(wheelProperties.ValueRW.AngularVelocity) > frictionAngularDelta)
                 {
-                    wheelProperties.ValueRW.angularVelocity -= frictionAngularDelta * math.sign(wheelProperties.ValueRW.angularVelocity);
+                    wheelProperties.ValueRW.AngularVelocity -= frictionAngularDelta * math.sign(wheelProperties.ValueRW.AngularVelocity);
                 }
                 else
                 {
-                    wheelProperties.ValueRW.angularVelocity = 0;
+                    wheelProperties.ValueRW.AngularVelocity = 0;
                 }
 
-                wheelProperties.ValueRW.slipRatio = 0;
-                wheelProperties.ValueRW.slipVelo = 0;
+                wheelProperties.ValueRW.SlipRatio = 0;
+                wheelProperties.ValueRW.SlipVelocity = 0;
             }
 
             wheelProperties.ValueRW.Compression = Mathf.Clamp01(wheelProperties.ValueRW.Compression);
         }
     }
-
-    /*var ecb = new EntityCommandBuffer(Allocator.TempJob);
-
-    foreach (var (wheelProperties, hitData, wheelLocalTransform) in SystemAPI.Query<RefRO<WheelProperties>, RefRO<WheelHitData>, RefRO<LocalTransform>>())
-    {
-        var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
-
-        var vehicleRigidbodyTransform = LocalTransform.FromMatrix(float4x4.TRS(
-                PhysicsWorldExtensions.GetPosition(physicsWorld, rigidbodyIndex),
-                PhysicsWorldExtensions.GetRotation(physicsWorld, rigidbodyIndex),
-                new float3(1f, 1f, 1f)
-            ));
-
-        var wheelCastOriginGlobalTransform = vehicleRigidbodyTransform.TransformTransform(wheelLocalTransform.ValueRO);
-
-        float FRICTION_GRIP_FACTOR = 1f;
-
-        float3 localRightDirection = math.mul(wheelCastOriginGlobalTransform.Rotation, math.right());
-        float3 localForwardDirection = math.forward(wheelCastOriginGlobalTransform.Rotation);
-        float3 tireVel = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
-
-        float steeringVel = math.dot(localRightDirection, tireVel);
-        float desiredSidewaysVelChange = -steeringVel * FRICTION_GRIP_FACTOR;
-        float desiredSidewaysAccel = desiredSidewaysVelChange / SystemAPI.Time.DeltaTime;
-
-        float forwardVel = math.dot(localForwardDirection, tireVel);
-        float desiredForwardVelChange = -forwardVel * FRICTION_GRIP_FACTOR;
-        float desiredForwardAccel = desiredForwardVelChange / SystemAPI.Time.DeltaTime;
-
-        if (wheelProperties.ValueRO.IsGrounded)
-        {
-            RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter);
-            RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter);
-        }
-
-        Debug.DrawRay(hitData.ValueRO.HitPoint, localForwardDirection, Color.blue);
-    }
-
-    ecb.Playback(state.EntityManager);
-    ecb.Dispose();
-    }*/
 
     [BurstCompile]
     private LocalTransform WheelTransformRelativeToRigidbody(LocalTransform wheelLocalTransform, PhysicsWorld physicsWorld, int rigidbodyIndex)
@@ -183,59 +142,60 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
 
     private float3 RoadForce(ref SystemState state, RefRW<WheelProperties> wheelProperties, RefRO<WheelHitData> hitData, float normalForce, LocalTransform worldTransform)
     {
-        int slipRes = (int)((100f - math.abs(wheelProperties.ValueRW.angularVelocity)) / 10f);
+        int slipRes = (int)((100f - math.abs(wheelProperties.ValueRW.AngularVelocity)) / 10f);
 
         if (slipRes < 1)
         {
             slipRes = 1;
         }
 
-        float invSlipRes = (1f / (float)slipRes);
+        float invertedSlipRes = (1f / (float)slipRes);
 
-        float totalInertia = wheelProperties.ValueRW.Inertia + wheelProperties.ValueRW.drivetrainInertia;
-        float driveAngularDelta = wheelProperties.ValueRW.DriveTorque * SystemAPI.Time.DeltaTime * invSlipRes / totalInertia;
-        float totalFrictionTorque = wheelProperties.ValueRW.brakeFrictionTorque * wheelProperties.ValueRW.brake + wheelProperties.ValueRW.handbrakeFrictionTorque *
-            wheelProperties.ValueRW.handbrake + wheelProperties.ValueRW.frictionTorque + wheelProperties.ValueRW.driveFrictionTorque;
-        float frictionAngularDelta = totalFrictionTorque * SystemAPI.Time.DeltaTime * invSlipRes / totalInertia;
+        float totalInertia = wheelProperties.ValueRW.Inertia + wheelProperties.ValueRW.DrivetrainInertia;
+        float driveAngularDelta = wheelProperties.ValueRW.DriveTorque * SystemAPI.Time.DeltaTime * invertedSlipRes / totalInertia;
+        float totalFrictionTorque = wheelProperties.ValueRW.BrakeFrictionTorque * wheelProperties.ValueRW.Brake + wheelProperties.ValueRW.HandbrakeFrictionTorque *
+            wheelProperties.ValueRW.Handbrake + wheelProperties.ValueRW.FrictionTorque + wheelProperties.ValueRW.DriveFrictionTorque;
+        float frictionAngularDelta = totalFrictionTorque * SystemAPI.Time.DeltaTime * invertedSlipRes / totalInertia;
 
         float3 totalForce = float3.zero;
-        float newAngle = wheelProperties.ValueRW.maxSteeringAngle * wheelProperties.ValueRW.steering;
+        float newAngle = wheelProperties.ValueRW.MaxSteeringAngle * wheelProperties.ValueRW.Steering;
 
         for (int i = 0; i < slipRes; i++)
         {
             float f = i * 1f / (float)slipRes;
-            wheelProperties.ValueRW.localRotation = quaternion.Euler(0, wheelProperties.ValueRO.oldAngle + (newAngle - wheelProperties.ValueRO.oldAngle) * f, 0);
-            wheelProperties.ValueRW.inverseLocalRotation = (quaternion)Quaternion.Inverse(wheelProperties.ValueRO.localRotation);
 
-            wheelProperties.ValueRW.slipRatio = SlipRatio(wheelProperties.ValueRO.WheelVelocity, math.forward(worldTransform.Rotation), wheelProperties.ValueRO.angularVelocity, wheelProperties.ValueRO.Radius);
-            wheelProperties.ValueRW.slipAngle = SlipAngle((Vector3)wheelProperties.ValueRO.LocalVelocity);
+            wheelProperties.ValueRW.LocalRotation = quaternion.Euler(0, wheelProperties.ValueRO.OldAngle + (newAngle - wheelProperties.ValueRO.OldAngle) * f, 0);
+            wheelProperties.ValueRW.InverseLocalRotation = math.inverse(wheelProperties.ValueRO.LocalRotation);
 
-            float3 force = invSlipRes * wheelProperties.ValueRW.grip * CombinedForce(b, normalForce, wheelProperties.ValueRW.slipRatio, wheelProperties.ValueRW.slipAngle, wheelProperties.ValueRW.maxSlip, wheelProperties.ValueRW.maxAngle,
+            wheelProperties.ValueRW.SlipRatio = SlipRatio(wheelProperties.ValueRO.WheelVelocity, math.forward(worldTransform.Rotation), wheelProperties.ValueRO.AngularVelocity, wheelProperties.ValueRO.Radius);
+            wheelProperties.ValueRW.SlipAngle = SlipAngle((Vector3)wheelProperties.ValueRO.LocalVelocity);
+
+            float3 force = invertedSlipRes * wheelProperties.ValueRW.Grip * CombinedForce(b, normalForce, wheelProperties.ValueRW.SlipRatio, wheelProperties.ValueRW.SlipAngle, wheelProperties.ValueRW.MaxSlip, wheelProperties.ValueRW.MaxAngle,
                 wheelProperties.ValueRW.LocalVelocity, hitData.ValueRO.Normal);
 
-            float3 worldForce = math.mul(wheelProperties.ValueRO.localRotation, force);
-            wheelProperties.ValueRW.angularVelocity -= (force.z * wheelProperties.ValueRW.Radius * SystemAPI.Time.DeltaTime) / totalInertia;
-            wheelProperties.ValueRW.angularVelocity += driveAngularDelta;
+            float3 worldForce = math.mul(wheelProperties.ValueRO.LocalRotation, force);
+            wheelProperties.ValueRW.AngularVelocity -= (force.z * wheelProperties.ValueRW.Radius * SystemAPI.Time.DeltaTime) / totalInertia;
+            wheelProperties.ValueRW.AngularVelocity += driveAngularDelta;
 
-            if (math.abs(wheelProperties.ValueRW.angularVelocity) > frictionAngularDelta)
+            if (math.abs(wheelProperties.ValueRW.AngularVelocity) > frictionAngularDelta)
             {
-                wheelProperties.ValueRW.angularVelocity -= frictionAngularDelta * math.sign(wheelProperties.ValueRW.angularVelocity);
+                wheelProperties.ValueRW.AngularVelocity -= frictionAngularDelta * math.sign(wheelProperties.ValueRW.AngularVelocity);
             }
             else
             {
-                wheelProperties.ValueRW.angularVelocity = 0;
+                wheelProperties.ValueRW.AngularVelocity = 0;
             }
 
             float bodyMass = 2000f;
-            wheelProperties.ValueRW.WheelVelocity += worldForce * (1 / bodyMass) * SystemAPI.Time.DeltaTime * invSlipRes;
+            wheelProperties.ValueRW.WheelVelocity += worldForce * (1 / bodyMass) * SystemAPI.Time.DeltaTime * invertedSlipRes;
             totalForce += worldForce;
         }
 
-        float longitunalSlipVelo = math.abs(wheelProperties.ValueRW.angularVelocity * wheelProperties.ValueRW.Radius - math.dot(wheelProperties.ValueRW.WheelVelocity, math.forward()));
+        float longitunalSlipVelo = math.abs(wheelProperties.ValueRW.AngularVelocity * wheelProperties.ValueRW.Radius - math.dot(wheelProperties.ValueRW.WheelVelocity, math.forward()));
         float lateralSlipVelo = math.dot(wheelProperties.ValueRW.WheelVelocity, math.right());
-        wheelProperties.ValueRW.slipVelo = math.sqrt(longitunalSlipVelo * longitunalSlipVelo + lateralSlipVelo * lateralSlipVelo);
+        wheelProperties.ValueRW.SlipVelocity = math.sqrt(longitunalSlipVelo * longitunalSlipVelo + lateralSlipVelo * lateralSlipVelo);
 
-        wheelProperties.ValueRW.oldAngle = newAngle;
+        wheelProperties.ValueRW.OldAngle = newAngle;
         return totalForce;
     }
 
@@ -262,7 +222,7 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
         const float fullAngleVelo = 2.0f;
 
         Vector3 wheelMotionDirection = localVelo;
-        wheelMotionDirection.y = 0;
+        wheelMotionDirection.y = 0f;
 
         if (wheelMotionDirection.sqrMagnitude < math.EPSILON)
         {
@@ -270,9 +230,9 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
         }
 
         float sinSlipAngle = wheelMotionDirection.normalized.x;
-        math.clamp(sinSlipAngle, -1, 1); // To avoid precision errors.
+        math.clamp(sinSlipAngle, -1f, 1f);
 
-        float damping = Mathf.Clamp01(localVelo.magnitude / fullAngleVelo);
+        float damping = MathExtensions.Clamp01(localVelo.magnitude / fullAngleVelo);
 
         return -math.asin(sinSlipAngle) * damping * damping;
     }
@@ -301,41 +261,45 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
         }
     }
 
-    private float CalcLongitudinalForce(float[] b, float Fz, float slip)
+    [BurstCompile]
+    private float CalcLongitudinalForce(float[] pacejkaCoefficientsB, float Fz, float slip)
     {
         Fz *= 0.001f;//convert to kN
         slip *= 100f; //covert to %
-        float uP = b[1] * Fz + b[2];
+        float uP = pacejkaCoefficientsB[1] * Fz + pacejkaCoefficientsB[2];
         float D = uP * Fz;
-        float B = ((b[3] * Fz + b[4]) * math.exp(-b[5] * Fz)) / (b[0] * uP);
-        float S = slip + b[9] * Fz + b[10];
-        float E = b[6] * Fz * Fz + b[7] * Fz + b[8];
-        float Fx = D * math.sin(b[0] * math.atan(S * B + E * (math.atan(S * B) - S * B)));
+        float B = ((pacejkaCoefficientsB[3] * Fz + pacejkaCoefficientsB[4]) * math.exp(-pacejkaCoefficientsB[5] * Fz)) / (pacejkaCoefficientsB[0] * uP);
+        float S = slip + pacejkaCoefficientsB[9] * Fz + pacejkaCoefficientsB[10];
+        float E = pacejkaCoefficientsB[6] * Fz * Fz + pacejkaCoefficientsB[7] * Fz + pacejkaCoefficientsB[8];
+        float Fx = D * math.sin(pacejkaCoefficientsB[0] * math.atan(S * B + E * (math.atan(S * B) - S * B)));
         return Fx;
     }
 
-    private float CalcLateralForce(float[] a, float Fz, float slipAngle)
+    [BurstCompile]
+    private float CalcLateralForce(float[] pacejkaCoefficientsA, float Fz, float slipAngle)
     {
         Fz *= 0.001f;//convert to kN
-        slipAngle *= (360f / (2f * Mathf.PI)); //convert angle to deg
-        float uP = a[1] * Fz + a[2];
+        slipAngle *= (360f / (2f * math.PI)); //convert angle to deg
+        float uP = pacejkaCoefficientsA[1] * Fz + pacejkaCoefficientsA[2];
         float D = uP * Fz;
-        float B = (a[3] * math.sin(2 * math.atan(Fz / a[4]))) / (a[0] * uP * Fz);
-        float S = slipAngle + a[9] * Fz + a[10];
-        float E = a[6] * Fz + a[7];
-        float Sv = a[12] * Fz + a[13];
-        float Fy = D * math.sin(a[0] * math.atan(S * B + E * (math.atan(S * B) - S * B))) + Sv;
+        float B = (pacejkaCoefficientsA[3] * math.sin(2 * math.atan(Fz / pacejkaCoefficientsA[4]))) / (pacejkaCoefficientsA[0] * uP * Fz);
+        float S = slipAngle + pacejkaCoefficientsA[9] * Fz + pacejkaCoefficientsA[10];
+        float E = pacejkaCoefficientsA[6] * Fz + pacejkaCoefficientsA[7];
+        float Sv = pacejkaCoefficientsA[12] * Fz + pacejkaCoefficientsA[13];
+        float Fy = D * math.sin(pacejkaCoefficientsA[0] * math.atan(S * B + E * (math.atan(S * B) - S * B))) + Sv;
         return Fy;
     }
 
-    private float CalcLongitudinalForceUnit(float[] b, float Fz, float slip, float maxSlip)
+    [BurstCompile]
+    private float CalcLongitudinalForceUnit(float[] pacejkaCoefficientsB, float Fz, float slip, float maxSlip)
     {
-        return CalcLongitudinalForce(b, Fz, slip * maxSlip);
+        return CalcLongitudinalForce(pacejkaCoefficientsB, Fz, slip * maxSlip);
     }
 
-    private float CalcLateralForceUnit(float[] b, float Fz, float slipAngle, float maxAngle)
+    [BurstCompile]
+    private float CalcLateralForceUnit(float[] pacejkaCoefficientsB, float Fz, float slipAngle, float maxAngle)
     {
-        return CalcLongitudinalForce(b, Fz, slipAngle * maxAngle);
+        return CalcLongitudinalForce(pacejkaCoefficientsB, Fz, slipAngle * maxAngle);
     }
 
     [BurstCompile]
@@ -349,6 +313,7 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
         });
     }
 
+    [BurstCompile]
     public void OnStopRunning(ref SystemState _)
     {
     }
