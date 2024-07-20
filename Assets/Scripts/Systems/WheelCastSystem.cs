@@ -15,6 +15,13 @@ namespace ECSExperiment.Wheels
     public partial struct WheelCastSystem : ISystem
     {
         [BurstCompile]
+        public void OnCreate(ref SystemState state) 
+        {
+            state.RequireForUpdate<WheelProperties>();
+            state.RequireForUpdate<VehicleProperties>();
+        }
+
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             state.Dependency.Complete();
@@ -96,9 +103,9 @@ namespace ECSExperiment.Wheels
         private RaycastInput CreateWheelCast(in WheelProperties wheelProperties, float3 wheelGlobalPosition, float3 wheelLocalUp)
         {
             var rayStart = wheelGlobalPosition + (wheelLocalUp * wheelProperties.Radius);
-            var rayEnd = rayStart - wheelLocalUp * (wheelProperties.SpringLength + wheelProperties.Radius);
+            var rayEnd = rayStart - (wheelLocalUp * (wheelProperties.SpringLength + wheelProperties.Radius));
 
-            return new RaycastInput
+            return new ()
             {
                 Start = rayStart,
                 End = rayEnd,

@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Entities;
-using Unity.Mathematics;
 
 public class WheelMono : MonoBehaviour
 {
@@ -35,26 +34,6 @@ public class WheelMono : MonoBehaviour
     [SerializeField] private float handbrakeFrictionTorque = 0;
     [SerializeField] private float frictionTorque = 10;
     [SerializeField] private float maxSteeringAngle = 28f;
-
-    public float driveTorque = 0;
-    public float driveFrictionTorque = 0;
-    public float brake = 0;
-    public float handbrake = 0;
-    public float steering = 0;
-    public float drivetrainInertia = 0;
-    public float suspensionForceInput = 0;
-    public float angularVelocity;
-    public float slipRatio;
-    public float slipVelo;
-    public float compression;
-    public Vector3 wheelVelo;
-    public Vector3 localVelo;
-    public float rotation;
-    public float normalForce;
-    public float slipAngle;
-    public float maxSlip;
-    public float maxAngle;
-    public float oldAngle;
 
     public class Baker : Baker<WheelMono>
     {
@@ -116,23 +95,6 @@ public partial class WheelBaker : SystemBase
                     FrictionTorque = wheelAuthoring.FrictionTorque,
                     HandbrakeFrictionTorque = wheelAuthoring.HandbrakeFrictionTorque,
                     MaxSteeringAngle = wheelAuthoring.MaxSteeringAngle,
-
-                    SlipAngle = wheelAuthoring.slipAngle,
-                    SlipRatio = wheelAuthoring.slipRatio,
-                    SlipVelocity = wheelAuthoring.slipVelo,
-                    Steering = wheelAuthoring.steering,
-                    DriveFrictionTorque = wheelAuthoring.driveFrictionTorque,
-                    DriveTorque = wheelAuthoring.driveTorque,
-                    DrivetrainInertia = wheelAuthoring.drivetrainInertia,
-                    AngularVelocity = wheelAuthoring.angularVelocity,
-                    Brake = wheelAuthoring.brake,
-                    Compression = wheelAuthoring.compression,
-                    MaxSlip = wheelAuthoring.maxSlip,
-                    Handbrake = wheelAuthoring.handbrake,
-                    LocalVelocity = wheelAuthoring.localVelo,
-                    MaxAngle = wheelAuthoring.maxAngle,
-                    WheelVelocity = wheelAuthoring.wheelVelo,
-                    OldAngle = wheelAuthoring.oldAngle,
                 };
 
                 EntityManager.AddComponentData(wheelEntity, wheelProperties);

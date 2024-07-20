@@ -20,6 +20,7 @@ namespace ECSExperiment.Wheels
         public float Throttle;
         public float ThrottleInput;
         public bool AutomaticGearbox;
+
         public int Gear;
         public float CurrentRPM;
         public float SlipRatio;
