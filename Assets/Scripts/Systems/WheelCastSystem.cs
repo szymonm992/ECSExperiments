@@ -64,6 +64,7 @@ namespace ECSExperiment.Wheels
                     float suspensionForce = math.dot(totalSuspensionForce, wheelLocalUp);
                     totalSuspensionForce = suspensionForce * wheelLocalUp;
 
+                    Debug.Log($"Compression is {compression}");
                     RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, totalSuspensionForce, wheelCenter);                 
                 }
                 else
@@ -147,29 +148,24 @@ namespace ECSExperiment.Wheels
         }
 
         [BurstCompile]
-        private void RepositionVisualWheel(ref SystemState state, EntityCommandBuffer ecb,LocalTransform parentTransform, Entity visualWheelEntity, float3 wheelCenter)
+        private void RepositionVisualWheel(ref SystemState _, EntityCommandBuffer ecb,LocalTransform parentTransform, Entity visualWheelEntity, float3 wheelCenter)
         {
-            // Get the local transform of the visual wheel relative to the parent
             var wheelLocalTransform = GetLocalTransformRelativeToParent(parentTransform, wheelCenter);
-
-            // Set the local transform for the wheel visual entity
             ecb.SetComponent(visualWheelEntity, wheelLocalTransform);
         }
 
         [BurstCompile]
         private LocalTransform GetLocalTransformRelativeToParent(LocalTransform parentTransform, float3 worldPosition)
         {
-            // Convert the world position to local position relative to the parent's transform
-            float4x4 parentMatrix = parentTransform.ToMatrix();
-            float4x4 inverseParentMatrix = math.inverse(parentMatrix);
+            var parentMatrix = parentTransform.ToMatrix();
+            var inverseParentMatrix = math.inverse(parentMatrix);
 
-            float3 localPosition = math.mul(inverseParentMatrix, new float4(worldPosition, 1f)).xyz;
-            quaternion parentRotation = parentTransform.Rotation;
+            var localPosition = math.mul(inverseParentMatrix, new float4(worldPosition, 1f)).xyz;
 
             return new LocalTransform
             {
                 Position = localPosition,
-                Rotation = parentRotation,
+                Rotation = parentTransform.Rotation,
                 Scale = 1f
             };
         }
