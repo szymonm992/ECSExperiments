@@ -6,7 +6,6 @@ using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 using UnityEngine;
-using System.Collections.Generic;
 using Unity.Collections;
 
 namespace ECSExperiment.Wheels
@@ -59,12 +58,13 @@ namespace ECSExperiment.Wheels
                     float3 totalSuspensionForce = (wheelProperties.ValueRO.Spring * (result.Position - castInput.End))
                         + (wheelProperties.ValueRO.Damper * (localVelocityB - localVelocityA)) * wheelsCountFraction;
 
-                    float impulseUp = math.dot(totalSuspensionForce, wheelLocalUp);
+                    float verticalForce = math.dot(totalSuspensionForce, wheelLocalUp);
                     float downForceLimit = -0.25f;
 
-                    if (downForceLimit < impulseUp)
+                    if (downForceLimit < verticalForce)
                     {
-                        totalSuspensionForce = impulseUp * wheelLocalUp;
+                        totalSuspensionForce = verticalForce * wheelLocalUp;
+                        wheelProperties.ValueRW.VerticalForce = verticalForce;
 
                         var vehicleForceAccumulationBuffer = SystemAPI.GetBuffer<ForceAccumulationBufferElement>(wheelProperties.ValueRO.VehicleEntity);
                         vehicleForceAccumulationBuffer.Add(new()

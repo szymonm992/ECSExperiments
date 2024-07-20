@@ -47,7 +47,6 @@ public class WheelMono : MonoBehaviour
     public float slipRatio;
     public float slipVelo;
     public float compression;
-    public float fullCompressionSpringForce;
     public Vector3 wheelVelo;
     public Vector3 localVelo;
     public float rotation;
@@ -128,7 +127,6 @@ public partial class WheelBaker : SystemBase
                     AngularVelocity = wheelAuthoring.angularVelocity,
                     Brake = wheelAuthoring.brake,
                     Compression = wheelAuthoring.compression,
-                    FullCompressionSpringForce = wheelAuthoring.fullCompressionSpringForce,
                     MaxSlip = wheelAuthoring.maxSlip,
                     Handbrake = wheelAuthoring.handbrake,
                     LocalVelocity = wheelAuthoring.localVelo,

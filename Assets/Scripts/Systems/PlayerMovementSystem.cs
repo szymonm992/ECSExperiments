@@ -5,28 +5,32 @@ using Unity.Physics;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
-using UnityEngine;
 using ECSExperiment.Wheels;
+using UnityEngine;
 
 [BurstCompile]
 [UpdateInGroup(typeof(PhysicsSimulationGroup))]
 [UpdateAfter(typeof(WheelCastSystem))]
 public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
 {
-    public static readonly float[] a = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
-    public static readonly float[] b = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
+    public const float KILONEWTONS_COEFFICIENTS = 0.001f;
+    public const float FULL_SLIP_VELOCITY = 4f;
 
+    public static readonly float[] PACEJKA_COEFFICIENTS_A = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
+    public static readonly float[] PACEJKA_COEFFICIENTS_B = { 1.0f, -60f, 1688f, 4140f, 6.026f, 0f, -0.3589f, 1f, 0f, -6.111f / 1000f, -3.244f / 100f, 0f, 0f, 0f, 0f };
+
+    [BurstCompile]
     public void OnStartRunning(ref SystemState state)
     {
         foreach (var wheelProperties in SystemAPI.Query<RefRW<WheelProperties>>())
         {
             const float stepsize = 0.001f;
-            const float testnormalforce = 4000f;
+            const float testNormalForce = 4000f;
             float force = 0;
 
             for (float slip = stepsize; ; slip += stepsize)
             {
-                float newforce = CalcLongitudinalForce(b, testnormalforce, slip);
+                float newforce = CalculateLongitudinalForce(PACEJKA_COEFFICIENTS_B, testNormalForce, slip);
 
                 if (force < newforce)
                 {
@@ -43,7 +47,7 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
 
             for (float slipangle = stepsize; ; slipangle += stepsize)
             {
-                float newforce = CalcLateralForce(b, testnormalforce, slipangle);
+                float newforce = CalculateLateralForce(PACEJKA_COEFFICIENTS_B, testNormalForce, slipangle);
 
                 if (force < newforce)
                 {
@@ -55,14 +59,10 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
                     break;
                 }
             }
-
-            var vehicleProperties = SystemAPI.GetComponent<VehicleProperties>(wheelProperties.ValueRO.VehicleEntity);
-            var wheelMassFraction = 1f / vehicleProperties.WheelsAmount;
-            wheelProperties.ValueRW.FullCompressionSpringForce = wheelMassFraction * 2.0f * -Physics.gravity.y;
         }
     }
 
-
+    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         state.Dependency.Complete();
@@ -81,8 +81,7 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
                 wheelProperties.ValueRW.WheelVelocity = physicsWorld.GetLinearVelocity(rigidbodyIndex, hitData.ValueRO.WheelCenter);
                 wheelProperties.ValueRW.LocalVelocity = math.mul(wheelProperties.ValueRO.InverseLocalRotation, wheelProperties.ValueRW.WheelVelocity);
 
-                float normalForce = wheelProperties.ValueRW.Compression * wheelProperties.ValueRW.FullCompressionSpringForce;
-                wheelProperties.ValueRW.RoadForce = RoadForce(ref state, wheelProperties, hitData, normalForce, wheelGlobalTransform);
+                wheelProperties.ValueRW.RoadForce = CalculateRoadForce(ref state, wheelProperties, wheelProperties.ValueRO.VerticalForce, hitData.ValueRO.Normal, wheelGlobalTransform);
 
                 RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, wheelProperties.ValueRW.RoadForce, hitData.ValueRO.WheelCenter);
                 //physicsWorld.ApplyImpulse(rigidbodyIndex, wheelProperties.ValueRW.roadForce, hitData.ValueRO.WheelCenter);
@@ -113,7 +112,7 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
                 wheelProperties.ValueRW.SlipVelocity = 0;
             }
 
-            wheelProperties.ValueRW.Compression = Mathf.Clamp01(wheelProperties.ValueRW.Compression);
+            wheelProperties.ValueRW.Compression = MathExtensions.Clamp01(wheelProperties.ValueRW.Compression);
         }
     }
 
@@ -140,25 +139,25 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
         return rigidbodyIndex > -1 && rigidbodyIndex < physicsWorld.NumDynamicBodies;
     }
 
-    private float3 RoadForce(ref SystemState state, RefRW<WheelProperties> wheelProperties, RefRO<WheelHitData> hitData, float normalForce, LocalTransform worldTransform)
+    [BurstCompile]
+    private float3 CalculateRoadForce(ref SystemState state, RefRW<WheelProperties> wheelProperties, float normalForce, float3 groundNormal, LocalTransform worldTransform)
     {
-        int slipRes = (int)((100f - math.abs(wheelProperties.ValueRW.AngularVelocity)) / 10f);
+        int slipRes = (int)((100f - math.abs(wheelProperties.ValueRO.AngularVelocity)) / 10f);
 
         if (slipRes < 1)
         {
             slipRes = 1;
         }
 
-        float invertedSlipRes = (1f / (float)slipRes);
-
-        float totalInertia = wheelProperties.ValueRW.Inertia + wheelProperties.ValueRW.DrivetrainInertia;
-        float driveAngularDelta = wheelProperties.ValueRW.DriveTorque * SystemAPI.Time.DeltaTime * invertedSlipRes / totalInertia;
-        float totalFrictionTorque = wheelProperties.ValueRW.BrakeFrictionTorque * wheelProperties.ValueRW.Brake + wheelProperties.ValueRW.HandbrakeFrictionTorque *
-            wheelProperties.ValueRW.Handbrake + wheelProperties.ValueRW.FrictionTorque + wheelProperties.ValueRW.DriveFrictionTorque;
+        float invertedSlipRes = 1f / (float)slipRes;
+        float totalInertia = wheelProperties.ValueRO.Inertia + wheelProperties.ValueRO.DrivetrainInertia;
+        float driveAngularDelta = wheelProperties.ValueRO.DriveTorque * SystemAPI.Time.DeltaTime * invertedSlipRes / totalInertia;
+        float totalFrictionTorque = wheelProperties.ValueRO.BrakeFrictionTorque * wheelProperties.ValueRO.Brake + wheelProperties.ValueRO.HandbrakeFrictionTorque *
+            wheelProperties.ValueRO.Handbrake + wheelProperties.ValueRO.FrictionTorque + wheelProperties.ValueRO.DriveFrictionTorque;
         float frictionAngularDelta = totalFrictionTorque * SystemAPI.Time.DeltaTime * invertedSlipRes / totalInertia;
 
         float3 totalForce = float3.zero;
-        float newAngle = wheelProperties.ValueRW.MaxSteeringAngle * wheelProperties.ValueRW.Steering;
+        float newAngle = wheelProperties.ValueRO.MaxSteeringAngle * wheelProperties.ValueRO.Steering;
 
         for (int i = 0; i < slipRes; i++)
         {
@@ -167,42 +166,42 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
             wheelProperties.ValueRW.LocalRotation = quaternion.Euler(0, wheelProperties.ValueRO.OldAngle + (newAngle - wheelProperties.ValueRO.OldAngle) * f, 0);
             wheelProperties.ValueRW.InverseLocalRotation = math.inverse(wheelProperties.ValueRO.LocalRotation);
 
-            wheelProperties.ValueRW.SlipRatio = SlipRatio(wheelProperties.ValueRO.WheelVelocity, math.forward(worldTransform.Rotation), wheelProperties.ValueRO.AngularVelocity, wheelProperties.ValueRO.Radius);
-            wheelProperties.ValueRW.SlipAngle = SlipAngle((Vector3)wheelProperties.ValueRO.LocalVelocity);
+            wheelProperties.ValueRW.SlipRatio = CalculateSlipRatio(wheelProperties.ValueRO.WheelVelocity, math.forward(worldTransform.Rotation), wheelProperties.ValueRO.AngularVelocity, wheelProperties.ValueRO.Radius);
+            wheelProperties.ValueRW.SlipAngle = CalculateSlipAngle(wheelProperties.ValueRO.LocalVelocity);
 
-            float3 force = invertedSlipRes * wheelProperties.ValueRW.Grip * CombinedForce(b, normalForce, wheelProperties.ValueRW.SlipRatio, wheelProperties.ValueRW.SlipAngle, wheelProperties.ValueRW.MaxSlip, wheelProperties.ValueRW.MaxAngle,
-                wheelProperties.ValueRW.LocalVelocity, hitData.ValueRO.Normal);
+            float3 localForce = invertedSlipRes * wheelProperties.ValueRO.Grip * CalculateCombinedForce(PACEJKA_COEFFICIENTS_B, normalForce, wheelProperties.ValueRO.SlipRatio, wheelProperties.ValueRO.SlipAngle, wheelProperties.ValueRO.MaxSlip, wheelProperties.ValueRO.MaxAngle,
+                wheelProperties.ValueRO.LocalVelocity, groundNormal);
 
-            float3 worldForce = math.mul(wheelProperties.ValueRO.LocalRotation, force);
-            wheelProperties.ValueRW.AngularVelocity -= (force.z * wheelProperties.ValueRW.Radius * SystemAPI.Time.DeltaTime) / totalInertia;
+            float3 worldForce = math.mul(wheelProperties.ValueRO.LocalRotation, localForce);
+            wheelProperties.ValueRW.AngularVelocity -= (localForce.z * wheelProperties.ValueRO.Radius * SystemAPI.Time.DeltaTime) / totalInertia;
             wheelProperties.ValueRW.AngularVelocity += driveAngularDelta;
 
-            if (math.abs(wheelProperties.ValueRW.AngularVelocity) > frictionAngularDelta)
+            if (math.abs(wheelProperties.ValueRO.AngularVelocity) > frictionAngularDelta)
             {
-                wheelProperties.ValueRW.AngularVelocity -= frictionAngularDelta * math.sign(wheelProperties.ValueRW.AngularVelocity);
+                wheelProperties.ValueRW.AngularVelocity -= frictionAngularDelta * math.sign(wheelProperties.ValueRO.AngularVelocity);
             }
             else
             {
                 wheelProperties.ValueRW.AngularVelocity = 0;
             }
 
-            float bodyMass = 2000f;
+            float bodyMass = 1170f;
             wheelProperties.ValueRW.WheelVelocity += worldForce * (1 / bodyMass) * SystemAPI.Time.DeltaTime * invertedSlipRes;
             totalForce += worldForce;
         }
 
-        float longitunalSlipVelo = math.abs(wheelProperties.ValueRW.AngularVelocity * wheelProperties.ValueRW.Radius - math.dot(wheelProperties.ValueRW.WheelVelocity, math.forward()));
-        float lateralSlipVelo = math.dot(wheelProperties.ValueRW.WheelVelocity, math.right());
-        wheelProperties.ValueRW.SlipVelocity = math.sqrt(longitunalSlipVelo * longitunalSlipVelo + lateralSlipVelo * lateralSlipVelo);
+        float longitunalSlipVelo = math.abs(wheelProperties.ValueRO.AngularVelocity * wheelProperties.ValueRO.Radius - math.dot(wheelProperties.ValueRO.WheelVelocity, math.forward()));
+        float lateralSlipVelo = math.dot(wheelProperties.ValueRO.WheelVelocity, math.right());
 
+        wheelProperties.ValueRW.SlipVelocity = math.sqrt(longitunalSlipVelo * longitunalSlipVelo + lateralSlipVelo * lateralSlipVelo);
         wheelProperties.ValueRW.OldAngle = newAngle;
+
         return totalForce;
     }
 
-    private float SlipRatio(float3 wheelVelo, float3 forward, float angularVelocity, float radius)
+    [BurstCompile]
+    private float CalculateSlipRatio(float3 wheelVelo, float3 forward, float angularVelocity, float radius)
     {
-        const float fullSlipVelo = 4.0f;
-
         float wheelRoadVelo = math.dot(wheelVelo, forward);
 
         if (wheelRoadVelo == 0)
@@ -211,33 +210,35 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
         }
 
         float absRoadVelo = math.abs(wheelRoadVelo);
-        float damping = Mathf.Clamp01(absRoadVelo / fullSlipVelo);
+        float damping = MathExtensions.Clamp01(absRoadVelo / FULL_SLIP_VELOCITY);
 
         float wheelTireVelo = angularVelocity * radius;
         return (wheelTireVelo - wheelRoadVelo) / absRoadVelo * damping;
     }
 
-    private float SlipAngle(Vector3 localVelo)
+    [BurstCompile]
+    private float CalculateSlipAngle(float3 localVelocity)
     {
         const float fullAngleVelo = 2.0f;
 
-        Vector3 wheelMotionDirection = localVelo;
+        float3 wheelMotionDirection = localVelocity;
         wheelMotionDirection.y = 0f;
 
-        if (wheelMotionDirection.sqrMagnitude < math.EPSILON)
+        if (math.lengthsq(wheelMotionDirection) < math.EPSILON)
         {
             return 0;
         }
 
-        float sinSlipAngle = wheelMotionDirection.normalized.x;
+        float sinSlipAngle = math.normalize(wheelMotionDirection).x;
         math.clamp(sinSlipAngle, -1f, 1f);
 
-        float damping = MathExtensions.Clamp01(localVelo.magnitude / fullAngleVelo);
+        float damping = MathExtensions.Clamp01(math.length(localVelocity) / fullAngleVelo);
 
         return -math.asin(sinSlipAngle) * damping * damping;
     }
 
-    private Vector3 CombinedForce(float[] b, float Fz, float slip, float slipAngle, float maxSlip, float maxAngle, Vector3 localVelo, float3 groundNormal)
+    [BurstCompile]
+    private float3 CalculateCombinedForce(float[] pacejkaCoefficientsB, float verticalForceInNewtons, float slip, float slipAngle, float maxSlip, float maxAngle, float3 localVelocity, float3 groundNormal)
     {
         float unitSlip = slip / maxSlip;
         float unitAngle = slipAngle / maxAngle;
@@ -247,59 +248,60 @@ public partial struct VehicleMovementSystem : ISystem, ISystemStartStop
         {
             if (slip < -0.8f)
             {
-                return -localVelo.normalized * (math.abs(unitAngle / p * CalcLateralForceUnit(b, Fz, p, maxAngle)) + math.abs(unitSlip / p * CalcLongitudinalForceUnit(b, Fz, p, maxSlip)));
+                return -math.normalize(localVelocity) * (math.abs(unitAngle / p * CalculateLateralForceUnit(pacejkaCoefficientsB, verticalForceInNewtons, p, maxAngle))
+                    + math.abs(unitSlip / p * CalculateLongitudinalForceUnit(pacejkaCoefficientsB, verticalForceInNewtons, p, maxSlip)));
             }
             else
             {
-                Vector3 forward = new Vector3(0, -groundNormal.z, groundNormal.y);
-                return Vector3.right * unitAngle / p * CalcLateralForceUnit(b, Fz, p, maxAngle) + forward * unitSlip / p * CalcLongitudinalForceUnit(b, Fz, p, maxSlip);
+                var forward = new float3(0, -groundNormal.z, groundNormal.y);
+                return math.right() * unitAngle / p * CalculateLateralForceUnit(pacejkaCoefficientsB, verticalForceInNewtons, p, maxAngle) + forward * unitSlip / p * CalculateLongitudinalForceUnit(pacejkaCoefficientsB, verticalForceInNewtons, p, maxSlip);
             }
         }
         else
         {
-            return Vector3.zero;
+            return float3.zero;
         }
     }
 
     [BurstCompile]
-    private float CalcLongitudinalForce(float[] pacejkaCoefficientsB, float Fz, float slip)
+    private float CalculateLongitudinalForce(float[] pacejkaCoefficientsB, float verticalForceInNewtons, float slip)
     {
-        Fz *= 0.001f;//convert to kN
+        verticalForceInNewtons *= KILONEWTONS_COEFFICIENTS;
         slip *= 100f; //covert to %
-        float uP = pacejkaCoefficientsB[1] * Fz + pacejkaCoefficientsB[2];
-        float D = uP * Fz;
-        float B = ((pacejkaCoefficientsB[3] * Fz + pacejkaCoefficientsB[4]) * math.exp(-pacejkaCoefficientsB[5] * Fz)) / (pacejkaCoefficientsB[0] * uP);
-        float S = slip + pacejkaCoefficientsB[9] * Fz + pacejkaCoefficientsB[10];
-        float E = pacejkaCoefficientsB[6] * Fz * Fz + pacejkaCoefficientsB[7] * Fz + pacejkaCoefficientsB[8];
+        float uP = pacejkaCoefficientsB[1] * verticalForceInNewtons + pacejkaCoefficientsB[2];
+        float D = uP * verticalForceInNewtons;
+        float B = ((pacejkaCoefficientsB[3] * verticalForceInNewtons + pacejkaCoefficientsB[4]) * math.exp(-pacejkaCoefficientsB[5] * verticalForceInNewtons)) / (pacejkaCoefficientsB[0] * uP);
+        float S = slip + pacejkaCoefficientsB[9] * verticalForceInNewtons + pacejkaCoefficientsB[10];
+        float E = pacejkaCoefficientsB[6] * verticalForceInNewtons * verticalForceInNewtons + pacejkaCoefficientsB[7] * verticalForceInNewtons + pacejkaCoefficientsB[8];
         float Fx = D * math.sin(pacejkaCoefficientsB[0] * math.atan(S * B + E * (math.atan(S * B) - S * B)));
         return Fx;
     }
 
     [BurstCompile]
-    private float CalcLateralForce(float[] pacejkaCoefficientsA, float Fz, float slipAngle)
+    private float CalculateLateralForce(float[] pacejkaCoefficientsA, float verticalForceInNewtons, float slipAngle)
     {
-        Fz *= 0.001f;//convert to kN
-        slipAngle *= (360f / (2f * math.PI)); //convert angle to deg
-        float uP = pacejkaCoefficientsA[1] * Fz + pacejkaCoefficientsA[2];
-        float D = uP * Fz;
-        float B = (pacejkaCoefficientsA[3] * math.sin(2 * math.atan(Fz / pacejkaCoefficientsA[4]))) / (pacejkaCoefficientsA[0] * uP * Fz);
-        float S = slipAngle + pacejkaCoefficientsA[9] * Fz + pacejkaCoefficientsA[10];
-        float E = pacejkaCoefficientsA[6] * Fz + pacejkaCoefficientsA[7];
-        float Sv = pacejkaCoefficientsA[12] * Fz + pacejkaCoefficientsA[13];
+        verticalForceInNewtons *= KILONEWTONS_COEFFICIENTS;
+        slipAngle = math.degrees(slipAngle);
+        float uP = pacejkaCoefficientsA[1] * verticalForceInNewtons + pacejkaCoefficientsA[2];
+        float D = uP * verticalForceInNewtons;
+        float B = (pacejkaCoefficientsA[3] * math.sin(2 * math.atan(verticalForceInNewtons / pacejkaCoefficientsA[4]))) / (pacejkaCoefficientsA[0] * uP * verticalForceInNewtons);
+        float S = slipAngle + pacejkaCoefficientsA[9] * verticalForceInNewtons + pacejkaCoefficientsA[10];
+        float E = pacejkaCoefficientsA[6] * verticalForceInNewtons + pacejkaCoefficientsA[7];
+        float Sv = pacejkaCoefficientsA[12] * verticalForceInNewtons + pacejkaCoefficientsA[13];
         float Fy = D * math.sin(pacejkaCoefficientsA[0] * math.atan(S * B + E * (math.atan(S * B) - S * B))) + Sv;
         return Fy;
     }
 
     [BurstCompile]
-    private float CalcLongitudinalForceUnit(float[] pacejkaCoefficientsB, float Fz, float slip, float maxSlip)
+    private float CalculateLongitudinalForceUnit(float[] pacejkaCoefficientsB, float verticalForceInNewtons, float slip, float maxSlip)
     {
-        return CalcLongitudinalForce(pacejkaCoefficientsB, Fz, slip * maxSlip);
+        return CalculateLongitudinalForce(pacejkaCoefficientsB, verticalForceInNewtons, slip * maxSlip);
     }
 
     [BurstCompile]
-    private float CalcLateralForceUnit(float[] pacejkaCoefficientsB, float Fz, float slipAngle, float maxAngle)
+    private float CalculateLateralForceUnit(float[] pacejkaCoefficientsB, float verticalForceInNewtons, float slipAngle, float maxAngle)
     {
-        return CalcLongitudinalForce(pacejkaCoefficientsB, Fz, slipAngle * maxAngle);
+        return CalculateLongitudinalForce(pacejkaCoefficientsB, verticalForceInNewtons, slipAngle * maxAngle);
     }
 
     [BurstCompile]

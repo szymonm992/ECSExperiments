@@ -28,7 +28,6 @@ public struct WheelProperties : IComponentData
     public float Steering;
     public float MaxSteeringAngle;
     public float DrivetrainInertia;
-    public float FullCompressionSpringForce;
     public float Grip;
     public float BrakeFrictionTorque;
     public float HandbrakeFrictionTorque;
@@ -36,6 +35,7 @@ public struct WheelProperties : IComponentData
     public float MaxSlip;
     public float MaxAngle;
     public float OldAngle;
+    public float VerticalForce;
     public float3 WheelVelocity;
     public float3 LocalVelocity;
     public float3 RoadForce;

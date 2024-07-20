@@ -503,7 +503,7 @@ Transform:
   m_GameObject: {fileID: 631277667}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: -1.2199993, z: 1.5}
+  m_LocalPosition: {x: 1, y: -1.02, z: 1.5}
   m_LocalScale: {x: 0.5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -536,7 +536,6 @@ MonoBehaviour:
   handbrakeFrictionTorque: 16000
   frictionTorque: 8000
   maxSteeringAngle: 28
-  massFraction: 0.25
   driveTorque: 0
   driveFrictionTorque: 0
   brake: 0
@@ -548,10 +547,8 @@ MonoBehaviour:
   slipRatio: 0
   slipVelo: 0
   compression: 0
-  fullCompressionSpringForce: 0
   wheelVelo: {x: 0, y: 0, z: 0}
   localVelo: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
   rotation: 0
   normalForce: 0
   slipAngle: 0
@@ -819,6 +816,7 @@ GameObject:
   - component: {fileID: 1258719233}
   - component: {fileID: 1258719235}
   - component: {fileID: 1258719236}
+  - component: {fileID: 1258719237}
   m_Layer: 0
   m_Name: CarTest
   m_TagString: Untagged
@@ -839,7 +837,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MotionType: 0
-  m_Smoothing: 0
+  m_Smoothing: 1
   m_Mass: 1170
   m_LinearDamping: 0.3
   m_AngularDamping: 0.05
@@ -885,8 +883,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1258719231}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.17364825, y: 0, z: 0, w: 0.9848078}
-  m_LocalPosition: {x: 0, y: 10, z: -11}
+  m_LocalRotation: {x: 0.17364816, y: 0, z: 0, w: 0.9848078}
+  m_LocalPosition: {x: 0, y: 8, z: -11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -896,7 +894,7 @@ Transform:
   - {fileID: 1375393208}
   - {fileID: 1842268842}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -20, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 20, y: 0, z: 0}
 --- !u!114 &1258719235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1059,6 +1057,37 @@ MonoBehaviour:
         Tag07: 0
     m_SerializedVersion: 1
   m_SerializedVersion: 1
+--- !u!114 &1258719237
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1258719231}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f90a5252c8e82547ab246eeae56a1ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gearRatios: []
+  finalDriveRatio: 3.23
+  minRPM: 800
+  maxRPM: 6400
+  maxTorque: 664
+  torqueRPM: 4000
+  maxPower: 317000
+  powerRPM: 5000
+  engineInertia: 0.3
+  engineBaseFriction: 25
+  engineRPMFriction: 0.02
+  engineOrientation: {x: 0, y: 0, z: 1}
+  differentialLockCoefficient: 0
+  throttle: 0
+  throttleInput: 0
+  automatic: 1
+  gear: 2
+  rpm: 0
+  slipRatio: 0
 --- !u!1 &1375393207
 GameObject:
   m_ObjectHideFlags: 0
@@ -1085,7 +1114,7 @@ Transform:
   m_GameObject: {fileID: 1375393207}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: -1.2199993, z: -1.5}
+  m_LocalPosition: {x: -1, y: -1.02, z: -1.5}
   m_LocalScale: {x: 0.5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1118,7 +1147,6 @@ MonoBehaviour:
   handbrakeFrictionTorque: 16000
   frictionTorque: 8000
   maxSteeringAngle: 28
-  massFraction: 0.25
   driveTorque: 0
   driveFrictionTorque: 0
   brake: 0
@@ -1130,10 +1158,8 @@ MonoBehaviour:
   slipRatio: 0
   slipVelo: 0
   compression: 0
-  fullCompressionSpringForce: 0
   wheelVelo: {x: 0, y: 0, z: 0}
   localVelo: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
   rotation: 0
   normalForce: 0
   slipAngle: 0
@@ -1445,7 +1471,7 @@ Transform:
   m_GameObject: {fileID: 1516685911}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: -1.2199993, z: -1.5}
+  m_LocalPosition: {x: 1, y: -1.02, z: -1.5}
   m_LocalScale: {x: 0.5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1478,7 +1504,6 @@ MonoBehaviour:
   handbrakeFrictionTorque: 16000
   frictionTorque: 8000
   maxSteeringAngle: 28
-  massFraction: 0.25
   driveTorque: 0
   driveFrictionTorque: 0
   brake: 0
@@ -1490,10 +1515,8 @@ MonoBehaviour:
   slipRatio: 0
   slipVelo: 0
   compression: 0
-  fullCompressionSpringForce: 0
   wheelVelo: {x: 0, y: 0, z: 0}
   localVelo: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
   rotation: 0
   normalForce: 0
   slipAngle: 0
@@ -1609,7 +1632,7 @@ Transform:
   m_GameObject: {fileID: 1842268841}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: -1.2199993, z: 1.5}
+  m_LocalPosition: {x: -1, y: -1.02, z: 1.5}
   m_LocalScale: {x: 0.5, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1642,7 +1665,6 @@ MonoBehaviour:
   handbrakeFrictionTorque: 16000
   frictionTorque: 8000
   maxSteeringAngle: 28
-  massFraction: 0.25
   driveTorque: 0
   driveFrictionTorque: 0
   brake: 0
@@ -1654,10 +1676,8 @@ MonoBehaviour:
   slipRatio: 0
   slipVelo: 0
   compression: 0
-  fullCompressionSpringForce: 0
   wheelVelo: {x: 0, y: 0, z: 0}
   localVelo: {x: 0, y: 0, z: 0}
-  groundNormal: {x: 0, y: 0, z: 0}
   rotation: 0
   normalForce: 0
   slipAngle: 0
