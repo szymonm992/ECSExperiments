@@ -31,41 +31,39 @@ namespace ECSExperiment.Wheels
                     return;
                 }
 
-                var wheelGlobalTransform = GetWorldTransformRelativeToRigidbody(wheelLocalTransform.ValueRO, physicsWorld, rigidbodyIndex);
-                var wheelLocalUp = math.mul(wheelGlobalTransform.Rotation, math.up());
-                var wheelLocalRight = math.mul(wheelGlobalTransform.Rotation, math.right());
+                var wheelOriginPosition = GetWorldTransformRelativeToRigidbody(wheelLocalTransform.ValueRO, physicsWorld, rigidbodyIndex);
+                var wheelLocalUp = math.mul(wheelOriginPosition.Rotation, math.up());
+                var wheelLocalRight = math.mul(wheelOriginPosition.Rotation, math.right());
 
-                var castInput = CreateWheelCast(wheelProperties.ValueRO, wheelGlobalTransform.Position, wheelLocalUp);
-                var wheelCenter = castInput.Start - (wheelLocalUp * wheelProperties.ValueRO.SpringLength);
+                var castInput = CreateWheelCast(wheelProperties.ValueRO, wheelOriginPosition.Position, wheelLocalUp);
+                //rest point is in the middle of spring 
+            
+                var restPoint = castInput.Start - (wheelLocalUp * (wheelProperties.ValueRO.Radius + (wheelProperties.ValueRO.SpringLength * 0.5f)));
+                var wheelCenter = restPoint;
 
-                UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), math.up(), 0f);
+               UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), math.up(), 0f);
 
                 if (physicsWorld.CollisionWorld.CastRay(castInput, out var result))
                 {
-                    var raycastDistance = math.distance(result.Position, castInput.Start);
-                    var rayMaxDistance = math.distance(castInput.Start, castInput.End);
+                    //var rayLength = math.distance(castInput.Start, castInput.End);
+                    var hitDistance = math.distance(result.Position, castInput.Start);
 
-                    var velocityAtWheel = physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter);
-                    var compression = 1f - (raycastDistance / rayMaxDistance);
+                    var velocityAtWheel = physicsWorld.GetLinearVelocity(rigidbodyIndex, result.Position);
+                    //var compression = 1f - (hitDistance / rayLength);
+                    var distanceToRestPoint = math.distance(castInput.Start, restPoint);
 
-                    wheelProperties.ValueRW.Compression = compression;
+                    //wheelProperties.ValueRW.Compression = compression;
                     wheelProperties.ValueRW.IsGrounded = true;
 
-                    wheelCenter = castInput.Start - (wheelLocalUp * (raycastDistance - wheelProperties.ValueRO.Radius));
+                    wheelCenter = castInput.Start - (wheelLocalUp * (hitDistance - wheelProperties.ValueRO.Radius));
                     UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.SurfaceNormal, result.Material.Friction);
 
-                    var currentSpeedUp = math.dot(velocityAtWheel, wheelLocalUp);
-                    
-                    float3 localVelocityOfVehicle = currentSpeedUp * wheelLocalUp;
-                    float3 localVelocityOfHitBody = physicsWorld.GetLinearVelocity(result.RigidBodyIndex, wheelCenter);
-                    float3 totalSuspensionForce = (wheelProperties.ValueRO.Spring * (result.Position - castInput.End))
-                        + (wheelProperties.ValueRO.Damper * (localVelocityOfHitBody - localVelocityOfVehicle)) * wheelProperties.ValueRO.WheelsAmountFraction;
+                    float offset = distanceToRestPoint - hitDistance + wheelProperties.ValueRO.Radius;
+                    var velocity = math.dot(wheelLocalUp, velocityAtWheel);
+                    var force = (offset * wheelProperties.ValueRO.Spring) - (velocity * wheelProperties.ValueRO.Damper);
 
-                    float suspensionForce = math.dot(totalSuspensionForce, wheelLocalUp);
-                    totalSuspensionForce = suspensionForce * wheelLocalUp;
-
-                    Debug.Log($"Compression is {compression}");
-                    RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, totalSuspensionForce, wheelCenter);                 
+                    Debug.Log($"Force is {force}");
+                    RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, wheelLocalUp * force, result.Position);                 
                 }
                 else
                 {
@@ -73,13 +71,14 @@ namespace ECSExperiment.Wheels
                     wheelProperties.ValueRW.Compression = 0f;
                 }
 
-                RepositionVisualWheel(ref state, ecb, wheelGlobalTransform, wheelProperties.ValueRO.WheelVisualObjectEntity, wheelCenter);
+                RepositionVisualWheel(ref state, ecb, wheelOriginPosition, wheelProperties.ValueRO.WheelVisualObjectEntity, wheelCenter);
 
                 #if UNITY_EDITOR
-                float3 localRightDirection = math.mul(wheelGlobalTransform.Rotation,
+                float3 localRightDirection = math.mul(wheelOriginPosition.Rotation,
                     new float3((int)wheelProperties.ValueRO.Side, 0, 0));
 
                 Debug.DrawRay(castInput.Start, castInput.End - castInput.Start, wheelProperties.ValueRO.IsGrounded ? Color.green : Color.red);
+                Debug.DrawRay(restPoint, wheelLocalRight, Color.yellow);
                 Debug.DrawRay(wheelCenter, localRightDirection, Color.red);
                 #endif
             }
@@ -92,7 +91,7 @@ namespace ECSExperiment.Wheels
         private RaycastInput CreateWheelCast(in WheelProperties wheelProperties, float3 wheelGlobalPosition, float3 wheelLocalUp)
         {
             var rayStart = wheelGlobalPosition + (wheelLocalUp * wheelProperties.Radius);
-            var rayEnd = rayStart - wheelLocalUp * (wheelProperties.SpringLength + wheelProperties.Radius);
+            var rayEnd = rayStart - wheelLocalUp * (wheelProperties.SpringLength + (wheelProperties.Radius * 2));
 
             return new RaycastInput
             {
