@@ -11,7 +11,7 @@ using UnityEngine;
 namespace ECSExperiment.Wheels
 {
     [BurstCompile]
-    [UpdateInGroup(typeof(PhysicsSimulationGroup), OrderFirst = true)]
+    [UpdateInGroup(typeof(PhysicsSimulationGroup))]
     public partial struct WheelCastSystem : ISystem
     {
         [BurstCompile]
@@ -40,30 +40,33 @@ namespace ECSExperiment.Wheels
             
                 var restPoint = castInput.Start - (wheelLocalUp * (wheelProperties.ValueRO.Radius + (wheelProperties.ValueRO.SpringLength * 0.5f)));
                 var wheelCenter = restPoint;
+                var lowerConstraintPoint = castInput.Start - (wheelLocalUp * (wheelProperties.ValueRO.Radius + wheelProperties.ValueRO.SpringLength));
 
                UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), math.up(), 0f);
 
                 if (physicsWorld.CollisionWorld.CastRay(castInput, out var result))
                 {
-                    //var rayLength = math.distance(castInput.Start, castInput.End);
                     var hitDistance = math.distance(result.Position, castInput.Start);
+                    wheelCenter = castInput.Start - (wheelLocalUp * (hitDistance - wheelProperties.ValueRO.Radius));
 
                     var velocityAtWheel = physicsWorld.GetLinearVelocity(rigidbodyIndex, result.Position);
-                    //var compression = 1f - (hitDistance / rayLength);
+                    var maxCompressedToWheelCenterPositionDistance = math.distance(wheelOriginPosition.Position, wheelCenter);
+                    var compression = math.clamp(1f - (maxCompressedToWheelCenterPositionDistance / wheelProperties.ValueRO.SpringLength), 0f, 1f);
                     var distanceToRestPoint = math.distance(castInput.Start, restPoint);
 
-                    //wheelProperties.ValueRW.Compression = compression;
+                    wheelProperties.ValueRW.Compression = compression;
                     wheelProperties.ValueRW.IsGrounded = true;
 
-                    wheelCenter = castInput.Start - (wheelLocalUp * (hitDistance - wheelProperties.ValueRO.Radius));
                     UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.SurfaceNormal, result.Material.Friction);
+                    
+                    float offset = (distanceToRestPoint - hitDistance + wheelProperties.ValueRO.Radius) / (wheelProperties.ValueRO.SpringLength * 0.5f);
+                    float velocity = math.dot(wheelLocalUp, velocityAtWheel);
 
-                    float offset = distanceToRestPoint - hitDistance + wheelProperties.ValueRO.Radius;
-                    var velocity = math.dot(wheelLocalUp, velocityAtWheel);
-                    var force = (offset * wheelProperties.ValueRO.Spring) - (velocity * wheelProperties.ValueRO.Damper);
+                    float normalForce = (offset * wheelProperties.ValueRO.Spring) - (velocity * wheelProperties.ValueRO.Damper);
+                    Debug.Log($"Offset is equal {offset} Current conmpression is {compression}");
+                    RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, wheelLocalUp * normalForce, result.Position);
 
-                    Debug.Log($"Force is {force}");
-                    RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, wheelLocalUp * force, result.Position);                 
+                    Debug.DrawRay(result.Position, wheelLocalUp * normalForce, Color.blue);
                 }
                 else
                 {
@@ -78,8 +81,13 @@ namespace ECSExperiment.Wheels
                     new float3((int)wheelProperties.ValueRO.Side, 0, 0));
 
                 Debug.DrawRay(castInput.Start, castInput.End - castInput.Start, wheelProperties.ValueRO.IsGrounded ? Color.green : Color.red);
+                Debug.DrawRay(wheelCenter, localRightDirection, Color.white);
+
                 Debug.DrawRay(restPoint, wheelLocalRight, Color.yellow);
-                Debug.DrawRay(wheelCenter, localRightDirection, Color.red);
+                Debug.DrawRay(wheelOriginPosition.Position, wheelLocalRight, Color.cyan);
+                Debug.DrawRay(lowerConstraintPoint, wheelLocalRight, Color.cyan);
+
+               
                 #endif
             }
 
@@ -91,7 +99,7 @@ namespace ECSExperiment.Wheels
         private RaycastInput CreateWheelCast(in WheelProperties wheelProperties, float3 wheelGlobalPosition, float3 wheelLocalUp)
         {
             var rayStart = wheelGlobalPosition + (wheelLocalUp * wheelProperties.Radius);
-            var rayEnd = rayStart - wheelLocalUp * (wheelProperties.SpringLength + (wheelProperties.Radius * 2));
+            var rayEnd = rayStart - wheelLocalUp * (wheelProperties.SpringLength + (wheelProperties.Radius * 2f));
 
             return new RaycastInput
             {
@@ -99,6 +107,11 @@ namespace ECSExperiment.Wheels
                 End = rayEnd,
                 Filter = CollisionFilter.Default,
             };
+        }
+
+        public float Clamp01(float value)
+        {
+            return math.clamp(value, 0f, 1f);
         }
 
         [BurstCompile]

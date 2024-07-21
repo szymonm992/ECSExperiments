@@ -51,11 +51,11 @@ namespace ECSExperiment.Wheels
 
                 if (wheelProperties.ValueRO.IsGrounded)
                 {
-                    RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter);
-                    RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter);
+                    //RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, desiredSidewaysAccel * localRightDirection, hitData.ValueRO.WheelCenter);
+                    //RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, desiredForwardAccel * localForwardDirection, hitData.ValueRO.WheelCenter);
                 }
 
-                Debug.DrawRay(hitData.ValueRO.HitPoint, localForwardDirection, Color.blue);
+                //Debug.DrawRay(hitData.ValueRO.HitPoint, localForwardDirection, Color.blue);
             }
 
             ecb.Playback(state.EntityManager);

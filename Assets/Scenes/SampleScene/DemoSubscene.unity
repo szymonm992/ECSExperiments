@@ -599,7 +599,7 @@ Transform:
   m_GameObject: {fileID: 631277667}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: -1.177, z: 1.5}
+  m_LocalPosition: {x: 1, y: -1, z: 1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -618,11 +618,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 1000
+  spring: 500
   damper: 100
   mass: 20
-  radius: 0.5
-  springLength: 0.3
+  radius: 0.4
+  springLength: 0.4
   wheelSide: 1
   canDrive: 1
   wheelVisualModel: {fileID: 242428765}
@@ -670,7 +670,7 @@ GameObject:
   - component: {fileID: 840564539}
   - component: {fileID: 840564538}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -686,7 +686,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.25, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.25, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 485141062}
@@ -836,7 +836,7 @@ GameObject:
   - component: {fileID: 1192470725}
   - component: {fileID: 1192470724}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -852,7 +852,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.25, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.25, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 24462450}
@@ -940,7 +940,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_MotionType: 0
   m_Smoothing: 0
-  m_Mass: 2000
+  m_Mass: 1170
   m_LinearDamping: 0.01
   m_AngularDamping: 0.05
   m_InitialLinearVelocity:
@@ -985,8 +985,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1258719231}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.19936797, y: 0, z: 0, w: 0.97992474}
-  m_LocalPosition: {x: 0, y: 16, z: -11}
+  m_LocalRotation: {x: 0.2588191, y: 0, z: 0, w: 0.9659258}
+  m_LocalPosition: {x: 0, y: 20, z: -11}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -996,7 +996,7 @@ Transform:
   - {fileID: 1375393208}
   - {fileID: 1842268842}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -23, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
 --- !u!114 &1258719235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1185,7 +1185,7 @@ Transform:
   m_GameObject: {fileID: 1375393207}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: -1.177, z: -1.5}
+  m_LocalPosition: {x: -1, y: -1, z: -1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1204,11 +1204,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 1000
+  spring: 500
   damper: 100
   mass: 20
-  radius: 0.5
-  springLength: 0.3
+  radius: 0.4
+  springLength: 0.4
   wheelSide: -1
   canDrive: 1
   wheelVisualModel: {fileID: 680744254}
@@ -1517,7 +1517,7 @@ Transform:
   m_GameObject: {fileID: 1516685911}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: -1.177, z: -1.5}
+  m_LocalPosition: {x: 1, y: -1, z: -1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1536,11 +1536,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 1000
+  spring: 500
   damper: 100
   mass: 20
-  radius: 0.5
-  springLength: 0.3
+  radius: 0.4
+  springLength: 0.4
   wheelSide: 1
   canDrive: 1
   wheelVisualModel: {fileID: 485141061}
@@ -1556,7 +1556,7 @@ GameObject:
   - component: {fileID: 1519281231}
   - component: {fileID: 1519281230}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1572,7 +1572,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.25, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.25, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 242428766}
@@ -1653,7 +1653,7 @@ Transform:
   m_GameObject: {fileID: 1842268841}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1, y: -1.177, z: 1.5}
+  m_LocalPosition: {x: -1, y: -1, z: 1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1672,11 +1672,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80682d611b32b8a40bcc0bccbc84f831, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spring: 1000
+  spring: 500
   damper: 100
   mass: 20
-  radius: 0.5
-  springLength: 0.3
+  radius: 0.4
+  springLength: 0.4
   wheelSide: -1
   canDrive: 1
   wheelVisualModel: {fileID: 24462449}
@@ -1692,7 +1692,7 @@ GameObject:
   - component: {fileID: 1992069900}
   - component: {fileID: 1992069899}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1708,7 +1708,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.5, y: 0.5, z: -0.5, w: 0.5}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 0.25, z: 1}
+  m_LocalScale: {x: 0.8, y: 0.25, z: 0.8}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 680744255}

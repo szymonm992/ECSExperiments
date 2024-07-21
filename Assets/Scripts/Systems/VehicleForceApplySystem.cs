@@ -8,7 +8,7 @@ using Unity.Collections;
 namespace ECSExperiment.Wheels
 {
     [BurstCompile]
-    [UpdateInGroup(typeof(PhysicsSimulationGroup), OrderFirst = true)]
+    [UpdateInGroup(typeof(PhysicsSimulationGroup))]
     [UpdateAfter(typeof(VehicleFrictionSystem))]
     public partial struct VehicleForceApplySystem : ISystem
     {
