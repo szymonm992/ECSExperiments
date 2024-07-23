@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
+using Unity.Physics.Authoring;
 using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
@@ -10,90 +11,88 @@ using UnityEngine;
 
 namespace ECSExperiment.Wheels
 {
-    [BurstCompile]
-    [UpdateInGroup(typeof(PhysicsSimulationGroup))]
     public partial struct WheelCastSystem : ISystem
     {
-        [BurstCompile]
-        public void OnUpdate(ref SystemState state)
-        {
-            state.Dependency.Complete();
+        //[BurstCompile]
+        //public void OnUpdate(ref SystemState state)
+        //{
+        //    state.Dependency.Complete();
 
-            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
-            var ecb = new EntityCommandBuffer(Allocator.TempJob);
+        //    var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().PhysicsWorld;
+        //    var ecb = new EntityCommandBuffer(Allocator.TempJob);
 
-            foreach (var (wheelProperties, wheelHitData, wheelLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRW<WheelHitData>, RefRO<LocalTransform>>())
-            {
-                var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
+        //    foreach (var (wheelProperties, wheelHitData, wheelLocalTransform) in SystemAPI.Query<RefRW<WheelProperties>, RefRW<WheelHitData>, RefRO<LocalTransform>>())
+        //    {
+        //        var rigidbodyIndex = physicsWorld.GetRigidBodyIndex(wheelProperties.ValueRO.VehicleEntity);
 
-                if (!IsRigidbodyIndexValid(rigidbodyIndex, physicsWorld))
-                {
-                    return;
-                }
+        //        if (!IsRigidbodyIndexValid(rigidbodyIndex, physicsWorld))
+        //        {
+        //            return;
+        //        }
 
-                var wheelOriginPosition = GetWorldTransformRelativeToRigidbody(wheelLocalTransform.ValueRO, physicsWorld, rigidbodyIndex);
-                var wheelLocalUp = math.mul(wheelOriginPosition.Rotation, math.up());
-                var wheelLocalRight = math.mul(wheelOriginPosition.Rotation, math.right());
+        //        var wheelOriginPosition = GetWorldTransformRelativeToRigidbody(wheelLocalTransform.ValueRO, physicsWorld, rigidbodyIndex);
+        //        var wheelLocalUp = math.mul(wheelOriginPosition.Rotation, math.up());
+        //        var wheelLocalRight = math.mul(wheelOriginPosition.Rotation, math.right());
 
-                var castInput = CreateWheelCast(wheelProperties.ValueRO, wheelOriginPosition.Position, wheelLocalUp);
-                //rest point is in the middle of spring 
-            
-                var restPoint = castInput.Start - (wheelLocalUp * (wheelProperties.ValueRO.Radius + (wheelProperties.ValueRO.SpringLength * 0.5f)));
-                var wheelCenter = restPoint;
-                var lowerConstraintPoint = castInput.Start - (wheelLocalUp * (wheelProperties.ValueRO.Radius + wheelProperties.ValueRO.SpringLength));
+        //        var castInput = CreateWheelCast(wheelProperties.ValueRO, wheelOriginPosition.Position, wheelLocalUp);
+        //        //rest point is in the middle of spring 
 
-               UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), math.up(), 0f);
+        //        var restPoint = castInput.Start - (wheelLocalUp * (wheelProperties.ValueRO.Radius + (wheelProperties.ValueRO.SpringLength * 0.5f)));
+        //        var wheelCenter = restPoint;
+        //        var lowerConstraintPoint = castInput.Start - (wheelLocalUp * (wheelProperties.ValueRO.Radius + wheelProperties.ValueRO.SpringLength));
 
-                if (physicsWorld.CollisionWorld.CastRay(castInput, out var result))
-                {
-                    var hitDistance = math.distance(result.Position, castInput.Start);
-                    wheelCenter = castInput.Start - (wheelLocalUp * (hitDistance - wheelProperties.ValueRO.Radius));
+        //       UpdateWheelHitData(ref wheelHitData.ValueRW, false, float3.zero, wheelCenter, physicsWorld.GetLinearVelocity(rigidbodyIndex, wheelCenter), math.up(), 0f);
 
-                    var velocityAtWheel = physicsWorld.GetLinearVelocity(rigidbodyIndex, result.Position);
-                    var maxCompressedToWheelCenterPositionDistance = math.distance(wheelOriginPosition.Position, wheelCenter);
-                    var compression = math.clamp(1f - (maxCompressedToWheelCenterPositionDistance / wheelProperties.ValueRO.SpringLength), 0f, 1f);
-                    var distanceToRestPoint = math.distance(castInput.Start, restPoint);
+        //        if (physicsWorld.CollisionWorld.CastRay(castInput, out var result))
+        //        {
+        //            var hitDistance = math.distance(result.Position, castInput.Start);
+        //            wheelCenter = castInput.Start - (wheelLocalUp * (hitDistance - wheelProperties.ValueRO.Radius));
 
-                    wheelProperties.ValueRW.Compression = compression;
-                    wheelProperties.ValueRW.IsGrounded = true;
+        //            var velocityAtWheel = physicsWorld.GetLinearVelocity(rigidbodyIndex, result.Position);
+        //            var maxCompressedToWheelCenterPositionDistance = math.distance(wheelOriginPosition.Position, wheelCenter);
+        //            var compression = math.clamp(1f - (maxCompressedToWheelCenterPositionDistance / wheelProperties.ValueRO.SpringLength), 0f, 1f);
+        //            var distanceToRestPoint = math.distance(castInput.Start, restPoint);
 
-                    UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.SurfaceNormal, result.Material.Friction);
-                    
-                    float offset = (distanceToRestPoint - hitDistance + wheelProperties.ValueRO.Radius) / (wheelProperties.ValueRO.SpringLength * 0.5f);
-                    float velocity = math.dot(wheelLocalUp, velocityAtWheel);
+        //            wheelProperties.ValueRW.Compression = compression;
+        //            wheelProperties.ValueRW.IsGrounded = true;
 
-                    float normalForce = (offset * wheelProperties.ValueRO.Spring) - (velocity * wheelProperties.ValueRO.Damper);
-                    Debug.Log($"Offset is equal {offset} Current conmpression is {compression}");
-                    RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, wheelLocalUp * normalForce, result.Position);
+        //            UpdateWheelHitData(ref wheelHitData.ValueRW, true, result.Position, wheelCenter, velocityAtWheel, result.SurfaceNormal, result.Material.Friction);
 
-                    Debug.DrawRay(result.Position, wheelLocalUp * normalForce, Color.blue);
-                }
-                else
-                {
-                    wheelProperties.ValueRW.IsGrounded = false;
-                    wheelProperties.ValueRW.Compression = 0f;
-                }
+        //            float offset = (distanceToRestPoint - hitDistance + wheelProperties.ValueRO.Radius) / (wheelProperties.ValueRO.SpringLength * 0.5f);
+        //            float velocity = math.dot(wheelLocalUp, velocityAtWheel);
 
-                RepositionVisualWheel(ref state, ecb, wheelOriginPosition, wheelProperties.ValueRO.WheelVisualObjectEntity, wheelCenter);
+        //            float normalForce = (offset * wheelProperties.ValueRO.Spring) - (velocity * wheelProperties.ValueRO.Damper);
+        //            Debug.Log($"Offset is equal {offset} Current conmpression is {compression}");
+        //            RequestForceAccumulation(ref state, wheelProperties.ValueRO.VehicleEntity, wheelLocalUp * normalForce, result.Position);
 
-                #if UNITY_EDITOR
-                float3 localRightDirection = math.mul(wheelOriginPosition.Rotation,
-                    new float3((int)wheelProperties.ValueRO.Side, 0, 0));
+        //            Debug.DrawRay(result.Position, wheelLocalUp * normalForce, Color.blue);
+        //        }
+        //        else
+        //        {
+        //            wheelProperties.ValueRW.IsGrounded = false;
+        //            wheelProperties.ValueRW.Compression = 0f;
+        //        }
 
-                Debug.DrawRay(castInput.Start, castInput.End - castInput.Start, wheelProperties.ValueRO.IsGrounded ? Color.green : Color.red);
-                Debug.DrawRay(wheelCenter, localRightDirection, Color.white);
+        //        RepositionVisualWheel(ref state, ecb, wheelOriginPosition, wheelProperties.ValueRO.WheelVisualObjectEntity, wheelCenter);
 
-                Debug.DrawRay(restPoint, wheelLocalRight, Color.yellow);
-                Debug.DrawRay(wheelOriginPosition.Position, wheelLocalRight, Color.cyan);
-                Debug.DrawRay(lowerConstraintPoint, wheelLocalRight, Color.cyan);
+        //        #if UNITY_EDITOR
+        //        float3 localRightDirection = math.mul(wheelOriginPosition.Rotation,
+        //            new float3((int)wheelProperties.ValueRO.Side, 0, 0));
 
-               
-                #endif
-            }
+        //        Debug.DrawRay(castInput.Start, castInput.End - castInput.Start, wheelProperties.ValueRO.IsGrounded ? Color.green : Color.red);
+        //        Debug.DrawRay(wheelCenter, localRightDirection, Color.white);
 
-            ecb.Playback(state.EntityManager);
-            ecb.Dispose();
-        }
+        //        Debug.DrawRay(restPoint, wheelLocalRight, Color.yellow);
+        //        Debug.DrawRay(wheelOriginPosition.Position, wheelLocalRight, Color.cyan);
+        //        Debug.DrawRay(lowerConstraintPoint, wheelLocalRight, Color.cyan);
+
+
+        //        #endif
+        //    }
+
+        //    ecb.Playback(state.EntityManager);
+        //    ecb.Dispose();
+        //}
 
         [BurstCompile]
         private RaycastInput CreateWheelCast(in WheelProperties wheelProperties, float3 wheelGlobalPosition, float3 wheelLocalUp)
