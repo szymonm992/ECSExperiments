@@ -895,7 +895,7 @@ GameObject:
   - component: {fileID: 622894286}
   - component: {fileID: 622894285}
   - component: {fileID: 622894288}
-  - component: {fileID: 622894290}
+  - component: {fileID: 622894289}
   m_Layer: 0
   m_Name: rf
   m_TagString: Untagged
@@ -1126,7 +1126,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vehicleEntity: {fileID: 0}
---- !u!114 &622894290
+--- !u!114 &622894289
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1135,7 +1135,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 622894283}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43a90fd2b152c41f2b0659c2f2feccfb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2faf71cdcf40ddd4a9d2cd9e49e024b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ConnectedBody: {fileID: 1280900494}
@@ -1154,6 +1154,8 @@ MonoBehaviour:
     z: 0
   TargetDistance: 0
   MaxImpulseAppliedByMotor: 600
+  SpringFrequency: 74341.31
+  SpringDampening: 0
 --- !u!1 &623161038
 GameObject:
   m_ObjectHideFlags: 0
@@ -1478,7 +1480,7 @@ GameObject:
   - component: {fileID: 792812350}
   - component: {fileID: 792812349}
   - component: {fileID: 792812352}
-  - component: {fileID: 792812354}
+  - component: {fileID: 792812353}
   m_Layer: 0
   m_Name: lb
   m_TagString: Untagged
@@ -1709,7 +1711,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vehicleEntity: {fileID: 0}
---- !u!114 &792812354
+--- !u!114 &792812353
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1718,7 +1720,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 792812347}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43a90fd2b152c41f2b0659c2f2feccfb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2faf71cdcf40ddd4a9d2cd9e49e024b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ConnectedBody: {fileID: 1280900494}
@@ -1737,6 +1739,8 @@ MonoBehaviour:
     z: 0
   TargetDistance: 0
   MaxImpulseAppliedByMotor: 600
+  SpringFrequency: 74341.31
+  SpringDampening: 0
 --- !u!1 &840564536
 GameObject:
   m_ObjectHideFlags: 0
@@ -1998,7 +2002,7 @@ GameObject:
   - component: {fileID: 1055171769}
   - component: {fileID: 1055171768}
   - component: {fileID: 1055171771}
-  - component: {fileID: 1055171773}
+  - component: {fileID: 1055171772}
   m_Layer: 0
   m_Name: lf
   m_TagString: Untagged
@@ -2229,7 +2233,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vehicleEntity: {fileID: 0}
---- !u!114 &1055171773
+--- !u!114 &1055171772
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2238,7 +2242,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1055171766}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43a90fd2b152c41f2b0659c2f2feccfb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2faf71cdcf40ddd4a9d2cd9e49e024b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ConnectedBody: {fileID: 1280900494}
@@ -2257,6 +2261,8 @@ MonoBehaviour:
     z: 0
   TargetDistance: 0
   MaxImpulseAppliedByMotor: 600
+  SpringFrequency: 74341.31
+  SpringDampening: 0
 --- !u!1 &1105643568
 GameObject:
   m_ObjectHideFlags: 0
@@ -3566,7 +3572,7 @@ GameObject:
   - component: {fileID: 1744701047}
   - component: {fileID: 1744701046}
   - component: {fileID: 1744701049}
-  - component: {fileID: 1744701051}
+  - component: {fileID: 1744701050}
   m_Layer: 0
   m_Name: rb
   m_TagString: Untagged
@@ -3797,7 +3803,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vehicleEntity: {fileID: 0}
---- !u!114 &1744701051
+--- !u!114 &1744701050
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3806,7 +3812,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1744701044}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43a90fd2b152c41f2b0659c2f2feccfb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2faf71cdcf40ddd4a9d2cd9e49e024b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ConnectedBody: {fileID: 1280900494}
@@ -3825,6 +3831,8 @@ MonoBehaviour:
     z: 0
   TargetDistance: 0
   MaxImpulseAppliedByMotor: 600
+  SpringFrequency: 74341.31
+  SpringDampening: 0
 --- !u!1 &1748320438
 GameObject:
   m_ObjectHideFlags: 0
