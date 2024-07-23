@@ -1148,14 +1148,10 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  DirectionOfMovement:
-    x: 0
-    y: 1
-    z: 0
   TargetDistance: 0
   MaxImpulseAppliedByMotor: 600
-  SpringFrequency: 74341.31
-  SpringDampening: 0
+  SpringFrequency: 75000
+  SpringDampening: 2500
 --- !u!1 &623161038
 GameObject:
   m_ObjectHideFlags: 0
@@ -1733,14 +1729,10 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  DirectionOfMovement:
-    x: 0
-    y: 1
-    z: 0
   TargetDistance: 0
   MaxImpulseAppliedByMotor: 600
-  SpringFrequency: 74341.31
-  SpringDampening: 0
+  SpringFrequency: 75000
+  SpringDampening: 2500
 --- !u!1 &840564536
 GameObject:
   m_ObjectHideFlags: 0
@@ -2255,14 +2247,10 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  DirectionOfMovement:
-    x: 0
-    y: 1
-    z: 0
   TargetDistance: 0
   MaxImpulseAppliedByMotor: 600
-  SpringFrequency: 74341.31
-  SpringDampening: 0
+  SpringFrequency: 75000
+  SpringDampening: 2500
 --- !u!1 &1105643568
 GameObject:
   m_ObjectHideFlags: 0
@@ -2984,8 +2972,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1280900492}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.19936797, y: 0, z: 0, w: 0.97992474}
-  m_LocalPosition: {x: 0, y: 33, z: -14.24}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 8.23, z: -17.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2995,7 +2983,7 @@ Transform:
   - {fileID: 792812348}
   - {fileID: 1055171767}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -23, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1375393207
 GameObject:
   m_ObjectHideFlags: 0
@@ -3825,14 +3813,10 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  DirectionOfMovement:
-    x: 0
-    y: 1
-    z: 0
   TargetDistance: 0
   MaxImpulseAppliedByMotor: 600
-  SpringFrequency: 74341.31
-  SpringDampening: 0
+  SpringFrequency: 75000
+  SpringDampening: 2500
 --- !u!1 &1748320438
 GameObject:
   m_ObjectHideFlags: 0
