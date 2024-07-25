@@ -1,4 +1,5 @@
 using Unity.Collections;
+using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Physics.Authoring;
@@ -8,11 +9,8 @@ namespace ECSExperiment.Wheels
 {
     public class WheelJoint : BaseJoint
     {
-        [Tooltip("An offset from the center of the body with the motor, representing the anchor point of translation.")]
         public float3 AnchorPosition;
-        [Tooltip("Motor will drive this length away from the anchor position of bodyA.")]
         public float TargetDistance;
-        [Tooltip("The magnitude of the maximum impulse the motor can exert in a single step. Applies only to the motor constraint.")]
         public float MaxImpulseAppliedByMotor = math.INFINITY;
 
         public float SpringFrequency = Constraint.DefaultSpringFrequency;
@@ -22,10 +20,17 @@ namespace ECSExperiment.Wheels
         private float3 AxisInConnectedEntity;
         private float3 PerpendicularAxisInConnectedEntity;
 
-        class CustomWheelJointAuthoring : JointBaker<WheelJoint>
+        public class CustomWheelJointAuthoring : JointBaker<WheelJoint>
         {
             public override void Bake(WheelJoint authoring)
             {
+                var entity = GetEntity(TransformUsageFlags.Dynamic);
+
+                AddComponent(entity, new WheelTag()
+                {
+                    IsGrounded = false,
+                });
+
                 var springDirection = math.up();
                 var aFromB = math.mul(math.inverse(authoring.worldFromA), authoring.worldFromB);
                 var axisInA = math.mul(aFromB.rot, springDirection);
