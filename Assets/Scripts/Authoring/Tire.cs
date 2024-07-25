@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ECSExperiment.Wheels
 {
-    public class WheelJoint : BaseJoint
+    public class Tire : BaseJoint
     {
         public float3 AnchorPosition;
         public float TargetDistance;
@@ -20,15 +20,14 @@ namespace ECSExperiment.Wheels
         private float3 AxisInConnectedEntity;
         private float3 PerpendicularAxisInConnectedEntity;
 
-        public class CustomWheelJointAuthoring : JointBaker<WheelJoint>
+        public class TireBaker : JointBaker<Tire>
         {
-            public override void Bake(WheelJoint authoring)
+            public override void Bake(Tire authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
 
-                AddComponent(entity, new WheelTag()
+                AddComponent(entity, new TireProperties()
                 {
-                    IsGrounded = false,
                 });
 
                 var springDirection = math.up();

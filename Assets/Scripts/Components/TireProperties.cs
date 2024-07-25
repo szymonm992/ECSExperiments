@@ -2,7 +2,7 @@ using Unity.Entities;
 
 namespace ECSExperiment.Wheels
 {
-    public struct WheelTag : IComponentData
+    public struct TireProperties : IComponentData
     {
         public bool IsGrounded;
     }
